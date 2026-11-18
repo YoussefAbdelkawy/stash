@@ -13,6 +13,8 @@ import { Cover, Icon } from './Icon'
 import { Panel } from './Panel'
 import { AddVideo } from './AddVideo'
 import { Details } from './Details'
+import { itemFromShare, readShare, type Shared } from './share'
+import { fetchTitle, youTubeId } from './youtube'
 import './App.css'
 
 const MAX_BACKUP_BYTES = 20 * 1024 * 1024
@@ -36,6 +38,10 @@ export default function App() {
       .then((list) => {
         flushSync(() => setItems(list))
         playOpening(screen.current!)
+        const shared = readShare(location.search)
+        if (!shared) return
+        history.replaceState(null, '', location.pathname) // so a reload doesn't save it twice
+        return receiveShare(shared, list)
       })
       .catch(() => setError("Couldn't open your saved items. Close and reopen the app; if it keeps happening, restore a backup."))
   }, [])
@@ -76,8 +82,26 @@ export default function App() {
     if (!(await store(item))) return false
     flushSync(() => { setTab('todo'); setItems((list) => [item, ...list!]) })
     riseIn($(`[data-id="${item.id}"]`))
-    setToast(item.title ? `Saved to To do: ${item.title}` : 'Saved as a Draft. Add the title when you have a minute.')
+    pop($('[data-tab="todo"] .count'))
+    setToast(item.is_draft ? 'Saved as a Draft. Add the details when you have a minute.' : `Saved to To do: ${displayTitle(item)}`)
     return true
+  }
+
+  // Opened from Android's Share menu: save at once, never ask anything first.
+  async function receiveShare(shared: Shared, list: Item[]) {
+    const item = itemFromShare(shared, crypto.randomUUID(), new Date().toISOString())
+    if (!item) return setToast('Nothing saved: that share had no link in it.')
+    const id = youTubeId(item.url!)
+    const existing = list.find((i) => i.url && (id ? youTubeId(i.url) === id : i.url === item.url))
+    if (existing) {
+      setToast(`Already saved: ${displayTitle(existing)}`)
+      return setPanel({ kind: 'item', id: existing.id })
+    }
+    if (id) {
+      item.title = await fetchTitle(item.url!)
+      item.is_draft = !item.title
+    }
+    await add(item)
   }
 
   async function archive(item: Item) {

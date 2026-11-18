@@ -1,5 +1,34 @@
 import { describe, expect, it } from 'vitest'
-import { linkFromShare } from './share'
+import { itemFromShare, linkFromShare, readShare } from './share'
+
+describe('readShare', () => {
+  it('reads title, text and url from the share link Android opens', () => {
+    expect(readShare('?title=Hi&text=Look+https%3A%2F%2Fyoutu.be%2FrfscVS0vtbw')).toEqual({ title: 'Hi', text: 'Look https://youtu.be/rfscVS0vtbw', url: null })
+    expect(readShare('')).toBeNull()
+    expect(readShare('?tab=todo')).toBeNull()
+  })
+})
+
+describe('itemFromShare', () => {
+  const at = '2026-11-18T12:00:00.000Z'
+
+  it('makes a YouTube share a video in To do', () => {
+    expect(itemFromShare({ text: 'Learn Python https://youtu.be/rfscVS0vtbw?si=x' }, 'id1', at)).toEqual({
+      id: 'id1', section: 'video', status: 'todo', is_draft: true, title: null,
+      url: 'https://youtu.be/rfscVS0vtbw?si=x', checklist: [], created_at: at,
+    })
+  })
+
+  it('saves any other link as a Course draft, keeping the page title Chrome sends', () => {
+    expect(itemFromShare({ title: 'CS50 - Harvard', url: 'https://cs50.harvard.edu/x/' }, 'id2', at)).toMatchObject({
+      section: 'course', is_draft: true, title: 'CS50 - Harvard', url: 'https://cs50.harvard.edu/x/',
+    })
+  })
+
+  it('returns null when the share has no usable link', () => {
+    expect(itemFromShare({ text: 'just words' }, 'id3', at)).toBeNull()
+  })
+})
 
 describe('linkFromShare', () => {
   it('finds the link the YouTube app puts in text (Android leaves url empty)', () => {

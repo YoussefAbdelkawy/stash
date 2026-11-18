@@ -26,7 +26,7 @@ Read this before every task, and re-read it whenever you are unsure. If a reques
 |---|---|
 | UI | React + Vite + TypeScript |
 | Data and files | On the phone only: IndexedDB via idb-keyval. No account, no server. Backup = a downloaded file. (Owner's change 2026-11-18.) |
-| Hosting | Vercel (free plan), static Vite build |
+| Hosting | GitHub Pages (free; repo must be public on a free account), static Vite build deployed by `.github/workflows/deploy.yml`. (Owner's change 2026-11-18, replaces Vercel.) |
 | Phone | PWA with a Web Share Target (Android Chrome); Capacitor later |
 | Tests | Vitest for logic, Playwright for screens |
 

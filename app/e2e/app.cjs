@@ -1,4 +1,4 @@
-// Phone-size screen test for step 2 (Videos). Run: npm run build && npm run e2e
+// Phone-size screen tests: step 2 (Videos) and step 3 (Share). Run: npm run build && npm run e2e
 // Needs Playwright with Chromium (preinstalled in Claude Code cloud containers). YouTube is mocked, so no network is used.
 const { chromium } = require('playwright')
 const { spawn } = require('node:child_process')
@@ -6,7 +6,7 @@ const assert = require('node:assert/strict')
 const path = require('node:path')
 
 const PORT = 4179
-const URL = `http://localhost:${PORT}/`
+const URL = `http://localhost:${PORT}/stash/`
 const SHOTS = process.env.SHOTS || path.join(__dirname, 'shots')
 const PYTHON = 'https://youtu.be/rfscVS0vtbw?si=AbC123xyz'
 const SHORT = 'https://m.youtube.com/shorts/aqz-KE-bpKQ'
@@ -17,18 +17,22 @@ async function main() {
   const browser = await chromium.launch()
   try {
     for (let n = 0; n < 50; n++) { try { await fetch(URL); break } catch { await new Promise((r) => setTimeout(r, 200)) } }
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', permissions: ['clipboard-read', 'clipboard-write'] })
-    const page = await context.newPage()
     const errors = []
-    page.on('pageerror', (e) => errors.push(String(e)))
-    page.on('console', (m) => m.type() === 'error' && !/favicon|fonts\.|oembed/.test(m.text() + m.location().url) && errors.push(m.text()))
-
-    // Mock YouTube: the Python video has a title; the Short's title lookup fails.
-    await page.route('https://www.youtube.com/oembed**', (route) =>
-      route.request().url().includes('rfscVS0vtbw')
-        ? route.fulfill({ json: { title: 'Learn Python - Full Course for Beginners' } })
-        : route.fulfill({ status: 404, body: 'Not Found' }))
-    await page.route('https://img.youtube.com/**', (route) => route.fulfill({ body: THUMB, contentType: 'image/svg+xml' }))
+    // A fresh phone each time (own storage). The service worker is blocked here so the YouTube mocks apply; it's checked on its own in 12.
+    async function phone(options = {}) {
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark', serviceWorkers: 'block', ...options })
+      const page = await context.newPage()
+      page.on('pageerror', (e) => errors.push(String(e)))
+      page.on('console', (m) => m.type() === 'error' && !/favicon|fonts\.|oembed/.test(m.text() + m.location().url) && errors.push(m.text()))
+      // Mock YouTube: the Python video has a title; other title lookups fail.
+      await page.route('https://www.youtube.com/oembed**', (route) =>
+        route.request().url().includes('rfscVS0vtbw')
+          ? route.fulfill({ json: { title: 'Learn Python - Full Course for Beginners' } })
+          : route.fulfill({ status: 404, body: 'Not Found' }))
+      await page.route('https://img.youtube.com/**', (route) => route.fulfill({ body: THUMB, contentType: 'image/svg+xml' }))
+      return page
+    }
+    const page = await phone({ permissions: ['clipboard-read', 'clipboard-write'] })
 
     await page.goto(URL)
     await page.getByText('Nothing saved yet. Tap +').waitFor()
@@ -102,8 +106,50 @@ async function main() {
     await page.screenshot({ path: `${SHOTS}/add-light.png` })
 
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390, 'no sideways scroll')
+
+    // 8. Share from the YouTube app (Android puts "title + link" in text) → saved at once, with the looked-up title.
+    const share = await phone()
+    const shareUrl = (q) => `${URL}?${new URLSearchParams(q)}`
+    await share.goto(shareUrl({ title: '', text: 'Learn Python - Full Course https://youtu.be/rfscVS0vtbw?si=x', url: '' }))
+    await share.getByText('Saved to To do: Learn Python').waitFor()
+    await share.locator('.row', { hasText: 'Learn Python' }).waitFor()
+    assert.equal(new globalThis.URL(share.url()).search, '', 'share data is cleared from the address')
+    await share.waitForTimeout(400)
+    await share.screenshot({ path: `${SHOTS}/share-dark.png` })
+
+    // 9. Share a course page from Chrome → Course draft that keeps the page title.
+    await share.goto(shareUrl({ title: 'CS50x - Harvard', text: '', url: 'https://cs50.harvard.edu/x/' }))
+    await share.getByText('Saved as a Draft').waitFor()
+    await share.locator('.row', { hasText: 'CS50x - Harvard' }).getByText('Needs details').waitFor()
+
+    // 10. The same video again → "Already saved" and its sheet opens. A share with no link saves nothing.
+    await share.goto(shareUrl({ text: 'https://www.youtube.com/watch?v=rfscVS0vtbw' }))
+    await share.getByText('Already saved: Learn Python').waitFor()
+    await share.locator('dialog.sheet').getByRole('link', { name: 'Open in YouTube' }).waitFor()
+    await share.goto(shareUrl({ text: 'just a note' }))
+    await share.getByText('that share had no link').waitFor()
+
+    // 11. Reloading never saves a share twice.
+    await share.reload()
+    await share.waitForTimeout(1500)
+    await share.getByText('0 in progress, 2 waiting').waitFor() // exactly the two shared items
+
+    // 12. Install pieces: the service worker runs, the manifest has the share target, and the icons load.
+    const real = await (await browser.newContext()).newPage()
+    await real.goto(URL)
+    const install = await real.evaluate(async () => {
+      await navigator.serviceWorker.ready
+      const manifest = await (await fetch(document.querySelector('link[rel=manifest]').href)).json()
+      const icons = await Promise.all(manifest.icons.map((i) => fetch(new URL(i.src, document.querySelector('link[rel=manifest]').href)).then((r) => r.status)))
+      return { manifest, icons }
+    })
+    assert.equal(install.manifest.name, 'Stash')
+    assert.equal(install.manifest.display, 'standalone')
+    assert.deepEqual(install.manifest.share_target, { action: './', method: 'GET', params: { title: 'title', text: 'text', url: 'url' } })
+    assert.deepEqual(install.icons, [200, 200, 200, 200])
+
     assert.deepEqual(errors, [], 'no console errors')
-    console.log('e2e: all 7 video checks passed')
+    console.log('e2e: all 12 checks passed (videos + share)')
   } finally {
     await browser.close()
     server.kill()

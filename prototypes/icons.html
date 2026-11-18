@@ -1,0 +1,86 @@
+<title>Stash Icon Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@700;800&display=swap">
+<style>
+/* Layout: a phone home screen per theme with the three icon candidates, then each icon large with Android's round crop. */
+:root {
+  --bg: #0f0d1a; --surface: #1a1729; --ink: #f1eefb; --muted: #a49fbd; --line: #2b2740; --accent: #b4a6ff;
+  --wall1: #2a1f5c; --wall2: #0f0d1a; --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f4f2fb; --surface: #fff; --ink: #17132a; --muted: #5f5a78; --line: #e4e0f2; --accent: #5b3fe0; --wall1: #d9d2ff; --wall2: #f4f2fb; color-scheme: light; } }
+:root[data-theme="light"] { --bg: #f4f2fb; --surface: #fff; --ink: #17132a; --muted: #5f5a78; --line: #e4e0f2; --accent: #5b3fe0; --wall1: #d9d2ff; --wall2: #f4f2fb; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); }
+main { max-width: 760px; margin: 0 auto; padding-block: 24px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+h1 { font-family: var(--display); font-size: 26px; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+p { margin: 0; color: var(--muted); line-height: 1.5; font-size: 14px; }
+.screens { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.phone { border-radius: 28px; padding: 26px 18px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px 8px; }
+.phone.dark { background: radial-gradient(80% 60% at 30% 10%, #3b2a8a, #0f0d1a); color: #fff; }
+.phone.light { background: radial-gradient(80% 60% at 30% 10%, #cfc6ff, #f7f5ff); color: #17132a; }
+.app { display: grid; justify-items: center; gap: 6px; font-size: 11.5px; }
+.app svg { width: 52px; height: 52px; border-radius: 50%; }
+.app .other { width: 52px; height: 52px; border-radius: 50%; background: rgb(127 127 127 / .25); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 16px; display: grid; gap: 12px; }
+.card h2 { font-family: var(--display); font-size: 17px; margin: 0; }
+.pair { display: flex; gap: 12px; align-items: center; }
+.pair svg { width: 96px; height: 96px; }
+.pair .round { border-radius: 50%; width: 72px; height: 72px; }
+.pair .square { border-radius: 22px; }
+small { font-size: 12px; color: var(--muted); }
+</style>
+
+<main>
+  <h1>Stash icon: pick one</h1>
+  <p>Three icons in the Glow look, shown the way Android shows them: cropped to a circle on the home screen, and as the full square. The name under them is "Stash".</p>
+
+  <div class="screens">
+    <div class="phone dark" aria-label="Dark home screen" id="dark"></div>
+    <div class="phone light" aria-label="Light home screen" id="light"></div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="g1" cx=".25" cy=".3" r=".6"><stop offset="0" stop-color="#6d4cff" stop-opacity=".9"/><stop offset="1" stop-color="#6d4cff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g2" cx=".8" cy=".35" r=".5"><stop offset="0" stop-color="#e5484d" stop-opacity=".7"/><stop offset="1" stop-color="#e5484d" stop-opacity="0"/></radialGradient>
+    <radialGradient id="g3" cx=".6" cy=".85" r=".55"><stop offset="0" stop-color="#12a594" stop-opacity=".7"/><stop offset="1" stop-color="#12a594" stop-opacity="0"/></radialGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f7bff"/><stop offset="1" stop-color="#4a2fd0"/></linearGradient>
+  </defs>
+</svg>
+
+<script>
+// Each icon is drawn on a 512 grid; the important part stays inside the middle 80% (Android's "maskable" safe zone).
+const ICONS = {
+  A: { name: 'A · Glow S', note: 'The letter S over the soft colored light from the header.', svg:
+    `<rect width="512" height="512" fill="#0f0d1a"/><rect width="512" height="512" fill="url(#g1)"/><rect width="512" height="512" fill="url(#g2)"/><rect width="512" height="512" fill="url(#g3)"/>
+     <text x="256" y="338" text-anchor="middle" font-family="Sora, system-ui, sans-serif" font-weight="800" font-size="250" fill="#fff" letter-spacing="-10">S</text>` },
+  B: { name: 'B · Stack', note: 'Three section cards stacked: video red, course blue, project teal. Says "a pile of things to get to".', svg:
+    `<rect width="512" height="512" fill="#0f0d1a"/><rect width="512" height="512" fill="url(#g1)"/>
+     <rect x="146" y="150" width="220" height="150" rx="30" fill="#12a594" transform="rotate(-10 256 225)"/>
+     <rect x="146" y="196" width="220" height="150" rx="30" fill="#0b84e5" transform="rotate(5 256 271)"/>
+     <rect x="146" y="242" width="220" height="150" rx="30" fill="#e5484d"/>
+     <path d="M236 284v66l56-33z" fill="#fff"/>` },
+  C: { name: 'C · Bookmark', note: 'A violet bookmark with a check: "saved, and gets done".', svg:
+    `<rect width="512" height="512" fill="url(#violet)"/><rect width="512" height="512" fill="url(#g2)" opacity=".6"/>
+     <path d="M176 128h160a20 20 0 0 1 20 20v248l-100-62-100 62V148a20 20 0 0 1 20-20z" fill="#fff"/>
+     <path d="M212 232l32 32 60-64" fill="none" stroke="#4a2fd0" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>` },
+}
+const icon = (k, cls = '') => `<svg viewBox="0 0 512 512" class="${cls}" role="img" aria-label="${ICONS[k].name}">${ICONS[k].svg}</svg>`
+for (const id of ['dark', 'light']) {
+  const others = ['Phone', 'YouTube', 'Chrome', 'WhatsApp', 'Camera']
+  document.getElementById(id).innerHTML =
+    others.slice(0, 3).map((n) => `<span class="app"><span class="other"></span>${n}</span>`).join('') +
+    Object.keys(ICONS).map((k) => `<span class="app">${icon(k)}Stash ${k}</span>`).join('') +
+    others.slice(3).map((n) => `<span class="app"><span class="other"></span>${n}</span>`).join('')
+}
+document.getElementById('cards').innerHTML = Object.keys(ICONS).map((k) => `
+  <section class="card"><h2>${ICONS[k].name}</h2>
+    <div class="pair">${icon(k, 'square')}${icon(k, 'round')}</div>
+    <small>${ICONS[k].note}</small></section>`).join('')
+</script>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Stash icon "B · Stack" (owner's pick 2026-11-18). Full-bleed, everything inside the middle 80% so Android's round crop keeps it. -->
+  <defs><radialGradient id="glow" cx=".25" cy=".3" r=".6"><stop offset="0" stop-color="#6d4cff" stop-opacity=".9"/><stop offset="1" stop-color="#6d4cff" stop-opacity="0"/></radialGradient></defs>
+  <rect width="512" height="512" fill="#0f0d1a"/><rect width="512" height="512" fill="url(#glow)"/>
+  <rect x="146" y="150" width="220" height="150" rx="30" fill="#12a594" transform="rotate(-10 256 225)"/>
+  <rect x="146" y="196" width="220" height="150" rx="30" fill="#0b84e5" transform="rotate(5 256 271)"/>
+  <rect x="146" y="242" width="220" height="150" rx="30" fill="#e5484d"/>
+  <path d="M236 284v66l56-33z" fill="#fff"/>
+</svg>

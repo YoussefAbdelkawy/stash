@@ -1,5 +1,5 @@
 # HANDOFF — "Stash" (placeholder name): personal learning-backlog app
-Last updated: 2026-11-18. Status: LOCAL-ONLY storage (owner, 2026-11-18). Steps 1 and 2 (Videos) done and tested. Code on GitHub: https://github.com/YoussefAbdelkawy/stash. Next: step 3 (Share button).
+Last updated: 2026-11-18. Status: LOCAL-ONLY storage (owner, 2026-11-18). Steps 1, 2 (Videos) and 3 (Share button) built and tested here. Code on GitHub: https://github.com/YoussefAbdelkawy/stash. Waiting on the owner to turn on GitHub Pages and test on the phone. Next: step 4.
 
 ## 1. The problem
 The owner keeps finding courses, YouTube videos, books, certificates to aim for, and project ideas. They send them to themselves on WhatsApp, and they get lost in the endless messages and never get done. The goal: one place that stores all of this, makes it easy to find again, and pushes items toward "done". Build it first as a web app, then turn it into an Android app.
@@ -20,7 +20,7 @@ See also STANDARDS.md: the fixed stack, no-hallucination rules, security, and th
 |---|---|
 | Phone | Android |
 | Saving things | Installed web app (PWA) that appears in Android's Share menu: tap Share in YouTube or Chrome, pick the app, and it saves at once. Uses the Web Share Target API (Chrome on Android only). |
-| Tech stack | React + Vite. **All data stays on the phone** (owner's decision 2026-11-18, replaces Supabase): no account, no sign-in, no cloud database. The app files are still served once from free Vercel hosting so the PWA can be installed. Later wrapped into a real Android app with Capacitor. |
+| Tech stack | React + Vite. **All data stays on the phone** (owner's decision 2026-11-18, replaces Supabase): no account, no sign-in, no cloud database. The app files are served from free **GitHub Pages** (owner's pick 2026-11-18, replaces Vercel) at https://youssefabdelkawy.github.io/stash/ so the PWA can be installed. Later wrapped into a real Android app with Capacitor. |
 | Cost | $0. (Old note, Supabase no longer used:) Supabase free plan: 500 MB database, 1 GB images, no card. Catch: a free project sleeps after 7 days unused; restore it with one click in the Supabase dashboard (data is kept). Firebase was rejected because image storage now needs a card on file. Re-check these limits on the pricing pages. |
 | Who builds | Claude builds, the owner learns by reading and tweaking. Keep the code small and readable. |
 | Sections (v1) | Videos, Courses/learning sites, Certificates, Books, Projects (details below). |
@@ -34,6 +34,9 @@ See also STANDARDS.md: the fixed stack, no-hallucination rules, security, and th
 | Add video | **B · Full page** (picked 2026-11-18 from `prototypes/videos.html`, A Bottom sheet / B Full page): + opens a full-screen Add page with a big "Paste from clipboard" button, a link field below, and a live preview card (thumbnail + title) once the link is valid. One "Save to To do" button. |
 | Tap an item | Opens a **detail sheet** (owner's pick 2026-11-18): edit the title, Open in YouTube (or Open link), To do / Doing / Done buttons (the row then flies to its new tab), Archive (sets `archived_at`, never deletes). The Now card opens it too. |
 | Same video twice | **"Already saved"** (owner's pick 2026-11-18): the Add page shows which tab it is in plus an "Open it" button, and Save stays off. Matched by YouTube video id, so different link shapes of one video count as the same. Archived videos don't count. |
+| App name | **Stash** (owner's pick 2026-11-18). |
+| App icon | **B · Stack** (owner's pick 2026-11-18 from `prototypes/icons.html`, artifact https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX): three tilted section cards (teal, blue, red) with a white play mark on the dark Glow background. Files: `app/public/icon.svg`, `icon-192.png`, `icon-512.png` (PNGs rendered from the SVG with Playwright). |
+| Shared non-YouTube links | **Saved at once as a Draft** with "Needs details" (owner's pick 2026-11-18). Until step 4 they land in **Courses**, keeping the page title Chrome sends. The same link shared twice → "Already saved" and its sheet opens. |
 | Backup | 'Download backup' button saves one file to the phone (owner can put it in Google Drive); 'Restore' loads it back. No automatic reminder. (Owner's pick 2026-11-18.) |
 | Home-screen look | **B · Focus** (picked 2026-11-18 from prototypes A Shelf / B Focus in `prototypes/home.html`): big "Now" card for the current Doing item, search box, Doing / To do / Done tabs with compact rows, a Random pick row in To do, sections in a bottom tab bar, a + button to save. |
 
@@ -50,10 +53,10 @@ Reminders and notifications, WhatsApp import, AI summaries, iPhone support, and 
 ## 4. Build order (each step works on its own)
 1. Local storage on the phone + backup/restore + home screen. DONE (2026-11-18).
 2. Videos section. DONE (2026-11-18).
-3. Share button (installable PWA plus share target). The app becomes usable from here.
+3. Share button (installable PWA plus share target). The app becomes usable from here. BUILT (2026-11-18); phone test pending.
 4. Courses (typed in; auto-fill waits for Capacitor), Certificates, Books, Projects.
 5. Search, tags and filters.
-6. Deploy to Vercel and install on the phone.
+6. Deploy (GitHub Pages, pulled forward into step 3) and install on the phone.
 7. Later: wrap with Capacitor into an Android app.
 
 Before steps 2–5: show at least 2 prototypes (rule 1). Before the share target, local storage and backup: research GitHub examples first (rule 4).
@@ -89,15 +92,24 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 - `app/e2e/videos.cjs` (`npm run build && npm run e2e`): Playwright at 390 px with YouTube mocked: paste → save with thumbnail, failed title → Draft, bad link, duplicate → Open it, rename, move to Doing, fill a draft's title, archive, reload keeps data. Screenshots in light and dark go to `app/e2e/shots/` (not in git). Uses the Playwright preinstalled in Claude Code cloud containers (`NODE_PATH=$(npm root -g)`), no new dependency.
 - Gotcha: `.bar` is the Now card's progress bar class; the Add page header is `.topbar`.
 
+## 5d. What exists (step 3, Share button)
+- Research (rule 4), pages actually opened: MDN share_target (https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Manifest/Reference/share_target): "Your PWA can only act as a web share target if it has been installed"; GET sends title/text/url as query parameters. Chrome docs (https://developer.chrome.com/docs/capabilities/web-apis/web-share-target): Android Chrome 76+, and on Android "the `url` field will be empty… URLs will often appear in the `text` field, or occasionally in the `title` field". Compared **vite-plugin-pwa** 2.0.0 (npm registry; https://vite-pwa-org.netlify.app/guide/: generates manifest + a Workbox service worker, pulls in workbox-build) with a **hand-written manifest + small service worker** (gist example https://gist.github.com/deadflowers/2995ace4d1ec6d6f23ceb508d0f7eff2, whose param names don't match its script: a bug to avoid). Picked hand-written: no new dependency, we only need the app shell offline.
+- `app/src/share.ts` + test: `readShare` (query → title/text/url, each capped at 4,000 chars), `linkFromShare` (first valid http(s) link in url, then text, then title; trims stuck-on punctuation but keeps `wiki/Alien_(film)`), `itemFromShare` (YouTube → video; else Course draft).
+- `App.tsx` `receiveShare`: on open with share data, clears it from the address bar first (no double save on reload), saves at once (video titles from oEmbed), shows the To do tab with the new row rising in, the count popping and a toast. Duplicate → "Already saved" + opens its sheet. No link → says nothing was saved.
+- `app/public/manifest.webmanifest` (name, icons incl. maskable, Glow colors, standalone, `share_target` GET with action `./`), `app/public/sw.js` (network-first for pages with the saved copy offline, cache-first for built files; skips other sites), registered in `main.tsx` for the built app only.
+- `vite.config.ts` `base: '/stash/'` (GitHub Pages project URL). Preview and e2e now use http://localhost:PORT/stash/.
+- `.github/workflows/deploy.yml`: on push to main, `npm ci`, `npm test`, build, deploy `app/dist` to Pages (actions pinned as in Vite's docs, https://vite.dev/guide/static-deploy).
+- e2e renamed `app/e2e/app.cjs`: 12 checks (7 video + share from YouTube app, Chrome course page, duplicate, no-link share, reload, and the install pieces: service worker ready, manifest share_target, icons load).
+- GitHub's plans page (https://docs.github.com/en/get-started/learning-about-github/githubs-plans): on GitHub Free, "GitHub Pages in public repositories" only, so the repo must be public.
+
 ## 6. Open items
-- Pick the app's name ("Stash" is a placeholder).
-- Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
-- Owner must authorize the Vercel connection (hosting only).
+- - Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
+- **Owner to do (once):** (1) make the repo public: GitHub → stash → Settings → General → Danger Zone → Change visibility → Public; (2) Settings → Pages → Source: **GitHub Actions**; (3) Actions tab → "Deploy to GitHub Pages" → Re-run (the first run fails until Pages is on). Then open https://youssefabdelkawy.github.io/stash/ in Chrome on Android → ⋮ → Add to Home screen / Install, and share a YouTube video to Stash. Not yet done or confirmed.
+- Vercel is no longer used.
 - Git: pushed to https://github.com/YoussefAbdelkawy/stash (private, branch `main`), 2026-11-18. Commit and push after every piece of work.
 
 ## 7. Next action
-Step 3 (Share button): research 2+ open-source approaches first (vite-plugin-pwa vs a hand-written manifest + service worker; PWAs using `share_target`), then ask the owner in turn: app name, icon (2+ options), hosting on Vercel now, where non-YouTube shared links go. See the step 3 plan in the old NEXT-CHAT file, also kept below.
+1. Owner: the three GitHub clicks in §6, then install on the phone and share a YouTube video and a Chrome page to Stash. Report back what happened (this is the step 3 manual check).
+2. Then step 4 (Courses, Certificates, Books, Projects): 2+ prototypes first (rule 1), asked one at a time as clickable choices. Include a way to change a shared draft's section (today non-YouTube shares land in Courses). Images in backups come with step 4 (see `src/backup.ts`).
 
-Step 3 plan (from the handoff): `src/share.ts` written test-first (`linkFromShare({ title, text, url })` picks the first valid http(s) link; the YouTube app puts the link in `text`); a `/share` screen that saves at once (YouTube → video via `youtube.ts`), shows a short "Saved" moment, then goes home; a manifest (name, icons 192/512/maskable, Glow `theme_color`/`background_color`, `display: standalone`, `share_target` with `method: "GET"` and `params` title/text/url, verify the shape in docs); a service worker caching the app shell; Vitest for `share.ts`, Playwright for `/share?text=...`, and a manual install-and-share check on the owner's phone. Installing needs HTTPS, so hosting (step 6) moves forward.
-
-Step 2 prototypes: `prototypes/videos.html` (artifact https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg).
+Prototypes: step 2 `prototypes/videos.html` (https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg), step 3 icon `prototypes/icons.html` (https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX).
