@@ -104,12 +104,12 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 
 ## 6. Open items
 - - Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
-- **Owner to do (once):** (1) make the repo public: GitHub → stash → Settings → General → Danger Zone → Change visibility → Public; (2) Settings → Pages → Source: **GitHub Actions**; (3) Actions tab → "Deploy to GitHub Pages" → Re-run (the first run fails until Pages is on). Then open https://youssefabdelkawy.github.io/stash/ in Chrome on Android → ⋮ → Add to Home screen / Install, and share a YouTube video to Stash. Not yet done or confirmed.
+- GitHub Pages is live (2026-11-18): repo public, Pages source = GitHub Actions, first deploy succeeded; https://youssefabdelkawy.github.io/stash/ checked over HTTPS (page, manifest, service worker, icons) and a share saved a real YouTube video with its real title and thumbnail in a phone-size browser. **Still to do: the owner installs it on the Android phone and shares from YouTube and Chrome.**
 - Vercel is no longer used.
 - Git: pushed to https://github.com/YoussefAbdelkawy/stash (branch `main`; must be public for GitHub Pages), 2026-11-18. Commit and push after every piece of work.
 
 ## 7. Next action
-1. Owner: the three GitHub clicks in §6, then install on the phone and share a YouTube video and a Chrome page to Stash. Report back what happened (this is the step 3 manual check).
+1. Owner: install on the phone and share a YouTube video and a Chrome page to Stash. Report back what happened (this is the step 3 manual check).
 2. Then step 4 (Courses, Certificates, Books, Projects): 2+ prototypes first (rule 1), asked one at a time as clickable choices. Include a way to change a shared draft's section (today non-YouTube shares land in Courses). Images in backups come with step 4 (see `src/backup.ts`).
 
 Prototypes: step 2 `prototypes/videos.html` (https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg), step 3 icon `prototypes/icons.html` (https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX).
