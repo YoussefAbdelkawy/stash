@@ -1,0 +1,29 @@
+/* "Glow" look (owner's pick): dark first, frosted Now card over soft colored light. */
+:root {
+  --bg: #0f0d1a; --surface: #1a1729; --chip: #242036; --ink: #f1eefb; --muted: #a49fbd; --line: #2b2740;
+  --accent: #b4a6ff; --on-accent: #120f20;
+  --hero: linear-gradient(160deg, rgb(255 255 255 / .14), rgb(255 255 255 / .04)); --hero-line: rgb(255 255 255 / .18);
+  --hero-ink: #ffffff; --hero-muted: #cfc8ea;
+  --glow1: #6d4cff55; --glow2: #e5484d33; --glow3: #12a59433;
+  --warn-bg: #3d2c10; --warn-fg: #ffd28a; --error: #ff8a80; --done: #5ee39a;
+  --shadow: 0 10px 30px rgb(0 0 0 / .35);
+  --video: #e5484d; --course: #0b84e5; --cert: #8e4ec6; --book: #d9822b; --project: #12a594;
+  --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f2fb; --surface: #ffffff; --chip: #ece9f8; --ink: #17132a; --muted: #5f5a78; --line: #e4e0f2;
+    --accent: #5b3fe0; --on-accent: #ffffff;
+    --hero: linear-gradient(160deg, rgb(255 255 255 / .8), rgb(255 255 255 / .5)); --hero-line: rgb(255 255 255 / .9);
+    --hero-ink: #17132a; --hero-muted: #5f5a78;
+    --glow1: #6d4cff40; --glow2: #e5484d26; --glow3: #12a59426;
+    --warn-bg: #fff2dc; --warn-fg: #8a4b00; --error: #b42318; --done: #15803d;
+    --shadow: 0 10px 30px rgb(40 20 120 / .12);
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
