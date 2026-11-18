@@ -1,0 +1,230 @@
+<title>Stash Motion Prototypes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: chooser on top, one 390px phone frame showing the Focus home with motion A or B. */
+:root{
+  --page:#eceaf6; --bg:#f6f5fb; --card:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#dde3e9;
+  --accent:#4f46e5; --on-accent:#ffffff; --soft:#e7e5fb; --warn-bg:#fff1d6; --warn-fg:#8a4b00; --done:#15803d;
+  --display:"Manrope",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  --m100:100ms; --m150:150ms; --m200:200ms; --m300:300ms;
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease-in:cubic-bezier(.7,0,.84,0);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --page:#0d0c14; --bg:#14131c; --card:#1d1c28; --ink:#e7edf2; --muted:#9aa6b2; --line:#2c2b3a;
+  --accent:#a5a1ff; --on-accent:#14131c; --soft:#2a2850; --warn-bg:#3a2a0c; --warn-fg:#ffcf7a; --done:#4ade80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#0d0c14; --bg:#14131c; --card:#1d1c28; --ink:#e7edf2; --muted:#9aa6b2; --line:#2c2b3a;
+  --accent:#a5a1ff; --on-accent:#14131c; --soft:#2a2850; --warn-bg:#3a2a0c; --warn-fg:#ffcf7a; --done:#4ade80; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{max-width:430px;margin:0 auto 14px;display:grid;gap:10px}
+.top h1{font-family:var(--display);font-size:20px;margin:0}
+.top p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick button{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:10px;text-align:left}
+.pick button[aria-pressed="true"]{border-color:var(--accent)}
+.pick b{display:block;font-family:var(--display)}
+.pick span{font-size:12px;color:var(--muted)}
+.replay{justify-self:start;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px}
+
+.phone{max-width:390px;height:780px;margin:0 auto;border:1px solid var(--line);border-radius:28px;overflow:hidden;position:relative;background:var(--bg);display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto;padding:18px 16px 140px;display:flex;flex-direction:column;gap:12px}
+.scroll>*{flex-shrink:0} /* long lists must not squeeze the Now card */
+.head{display:flex;justify-content:space-between;align-items:start;gap:8px}
+.hello{font-family:var(--display);font-weight:800;font-size:28px;margin:0;line-height:1.1}
+.hello span{display:inline-block}
+.sub{color:var(--muted);font-size:13px;margin:4px 0 0}
+.backup{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:6px 0}
+.search{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card)}
+
+.now{position:relative;border-radius:22px;background:var(--accent);color:var(--on-accent);padding:18px 16px 16px;display:grid;gap:10px;overflow:hidden}
+.now .kicker{font-size:12px;opacity:.85;font-weight:600}
+.now h2{font-family:var(--display);font-size:21px;margin:0;line-height:1.2}
+.now .bar{height:6px;border-radius:9px;background:color-mix(in srgb,var(--on-accent) 30%,transparent);overflow:hidden}
+.now .bar i{display:block;height:100%;width:100%;background:var(--on-accent);transform-origin:left;transform:scaleX(var(--p,0))}
+.nowrow{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.nowrow button{border:0;background:var(--on-accent);color:var(--accent);border-radius:10px;padding:8px 14px;font-weight:700}
+.sweep{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,color-mix(in srgb,var(--on-accent) 35%,transparent) 50%,transparent 70%);transform:translateX(-120%);pointer-events:none}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--line);position:relative}
+.tabs button{border:0;background:none;border-radius:9px;padding:8px;font-weight:600;font-size:13px;color:var(--muted);position:relative;z-index:1}
+.tabs button[aria-pressed="true"]{color:var(--ink)}
+.tabs .pill{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:9px;background:var(--soft);transition:transform var(--m200) var(--ease-out)}
+.tabs .n{font-size:11px;color:var(--muted);margin-left:4px;display:inline-block}
+
+.list{display:grid}
+.row{display:grid;grid-template-columns:38px 1fr auto;gap:12px;align-items:center;padding:11px 4px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);text-align:left;transform-origin:center}
+.row.dashed{border-bottom-style:dashed}
+.tag{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--soft);font-family:var(--mono);font-size:11px;color:var(--accent)}
+.row strong{display:block;font-size:14px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.row small{font-size:12px;color:var(--muted)}
+.badge{background:var(--warn-bg);color:var(--warn-fg);border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:28px 12px;line-height:1.5;margin:0}
+.reel{height:20px;overflow:hidden;display:block}
+#reel{display:block}
+#reel span{display:block;height:20px;line-height:20px;font-weight:600;font-size:14px}
+
+.plus{position:absolute;right:16px;bottom:78px;width:54px;height:54px;border-radius:17px;border:0;background:var(--accent);color:var(--on-accent);font-size:28px;box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 40%,transparent)}
+.dock{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,1fr);background:var(--card);border-top:1px solid var(--line);padding:8px 4px 12px}
+.dock button{border:0;background:none;font-size:11px;color:var(--muted);display:grid;gap:3px;justify-items:center;padding:4px 0}
+.dock button[aria-pressed="true"]{color:var(--accent);font-weight:700}
+.dock b{font-family:var(--mono);font-size:12px}
+.toast{position:absolute;left:16px;right:16px;bottom:84px;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:13px;z-index:5}
+.stamp{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:6}
+.stamp b{font-family:var(--display);font-weight:800;font-size:44px;color:var(--done);border:4px solid var(--done);border-radius:14px;padding:4px 18px;background:var(--bg)}
+.spark{position:absolute;width:8px;height:8px;border-radius:2px;pointer-events:none;z-index:6}
+
+/* B only: Now card shrinks and fades as you scroll (scroll-driven, transform + opacity). */
+@supports (animation-timeline: scroll()){
+  .cine .now{animation:shrink linear both;animation-timeline:scroll(nearest);animation-range:0 220px}
+  @keyframes shrink{to{transform:scale(.92) translateY(-8px);opacity:.55}}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="top">
+  <h1>Stash: pick the motion style</h1>
+  <p>Same Focus screen, two ways of moving. Tap a row to move it to the next status, try Random pick in To do, tap Mark done, switch tabs, and scroll.</p>
+  <div class="pick" role="group" aria-label="Choose motion style">
+    <button id="pA" aria-pressed="true"><b>A · Calm</b><span>Quick fades and short slides. Feels instant.</span></button>
+    <button id="pB" aria-pressed="false"><b>B · Cinematic</b><span>Opening sequence, slot-machine pick, Done stamp.</span></button>
+  </div>
+  <button class="replay" id="replay">Replay opening</button>
+</div>
+<div class="phone" id="phone"></div>
+<p class="top" style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px">Example items. If your phone is set to reduce motion, both styles stay still.</p>
+
+<script>
+const SEC={all:["All","∗"],video:["Videos","VID"],course:["Courses","CRS"],cert:["Certs","CRT"],book:["Books","BK"],project:["Projects","PRJ"]};
+const LABEL={todo:"To do",doing:"Doing",done:"Done"},NEXT={todo:"doing",doing:"done",done:"todo"};
+let items=[
+ {id:1,s:"project",t:"Build a budget tracker in React",st:"doing",check:[3,7]},
+ {id:2,s:"video",t:"Supabase in 100 seconds",st:"doing"},
+ {id:3,s:"cert",t:"Google Data Analytics Certificate",st:"todo"},
+ {id:4,s:"book",t:"Atomic Habits",st:"todo"},
+ {id:5,s:"course",t:"The Odin Project: Full Stack JavaScript",st:"todo"},
+ {id:6,s:"video",t:"youtu.be/abc123",st:"todo",draft:true},
+ {id:7,s:"book",t:"Deep Work",st:"todo"},
+ {id:8,s:"project",t:"Portfolio website",st:"todo",draft:true},
+ {id:9,s:"course",t:"CS50x Introduction to Computer Science",st:"done"},
+];
+const ORIGINAL=JSON.stringify(items);
+let mode="calm",tab="doing",filter="all",query="",busy=false;
+const phone=document.getElementById("phone");
+const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const anim=(el,k,o)=>still||!el?{finished:Promise.resolve()}:el.animate(k,o);
+const wait=ms=>new Promise(r=>setTimeout(r,still?0:ms));
+const shown=()=>items.filter(i=>(filter==="all"||i.s===filter)&&(!query||i.t.toLowerCase().includes(query)));
+const nowItem=()=>shown().find(i=>i.st==="doing");
+const meta=i=>i.check?`${i.check[0]}/${i.check[1]} steps done`:SEC[i.s][0];
+
+function render(){
+  const now=nowItem(),rows=shown().filter(i=>i.st===tab&&i!==now),count=s=>shown().filter(i=>i.st===s).length;
+  const ti=["doing","todo","done"].indexOf(tab);
+  phone.className="phone "+mode;
+  phone.innerHTML=`<div class="scroll" id="scroll">
+   <div class="head"><div><h1 class="hello">${"Keep going".split(" ").map(w=>`<span>${w}</span>`).join(" ")}</h1>
+   <p class="sub">${count("doing")} in progress, ${count("todo")} waiting</p></div><button class="backup" data-act="backup">Backup</button></div>
+   <input class="search" id="q" type="search" placeholder="Search your stash" aria-label="Search" value="${esc(query)}">
+   ${now?`<section class="now" aria-label="Now"><div class="sweep"></div><span class="kicker">Now: ${SEC[now.s][0]}</span><h2>${esc(now.t)}</h2>
+     ${now.check?`<div class="bar" aria-label="${now.check[0]} of ${now.check[1]} steps done"><i style="--p:${now.check[0]/now.check[1]}"></i></div>`:""}
+     <div class="nowrow"><span>${meta(now)}</span><button data-done="${now.id}">Mark done</button></div></section>`:""}
+   <div class="tabs" role="group" aria-label="Status"><span class="pill" style="transform:translateX(${ti*100}%)"></span>
+     ${["doing","todo","done"].map(s=>`<button data-tab="${s}" aria-pressed="${tab===s}">${LABEL[s]}<span class="n">${count(s)}</span></button>`).join("")}</div>
+   <div class="list" id="list">
+    ${tab==="todo"?`<button class="row dashed" data-act="rand"><span class="tag">?</span><span><strong class="reel"><span id="reel"><span>Random pick</span></span></strong><small>Can't choose? Let the app pick one.</small></span><span></span></button>`:""}
+    ${rows.map(i=>`<button class="row" data-id="${i.id}" aria-label="${esc(i.t)}. Tap to move to ${LABEL[NEXT[i.st]]}"><span class="tag">${SEC[i.s][1]}</span><span><strong>${esc(i.t)}</strong><small>${meta(i)}</small></span>${i.draft?'<span class="badge">Needs details</span>':"<span></span>"}</button>`).join("")}
+    ${!rows.length?`<p class="empty">Nothing in ${LABEL[tab]}${filter!=="all"?" for "+SEC[filter][0]:""}.<br>Tap an item in another tab to move it here.</p>`:""}
+   </div></div>
+   <button class="plus" data-act="add" aria-label="Save a link">+</button>
+   <nav class="dock" aria-label="Sections">${Object.entries(SEC).map(([k,[l,g]])=>`<button data-f="${k}" aria-pressed="${filter===k}"><b>${g}</b>${l}</button>`).join("")}</nav>`;
+}
+
+/* ---------- entrances ---------- */
+function rowsIn(stagger){document.querySelectorAll("#list .row").forEach((r,n)=>anim(r,[{opacity:0,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:200,delay:stagger?n*30:0,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"}))}
+async function opening(){
+  render();
+  if(mode==="calm"){anim(phone.querySelector(".scroll"),[{opacity:0},{opacity:1}],{duration:200});rowsIn(true);return}
+  // Cinematic: words rise, the Now card lifts in with a light sweep, progress fills, rows cascade.
+  const words=phone.querySelectorAll(".hello span"),now=phone.querySelector(".now"),rest=phone.querySelectorAll(".sub,.search,.tabs,.backup");
+  words.forEach((w,n)=>anim(w,[{opacity:0,transform:"translateY(70%)"},{opacity:1,transform:"none"}],{duration:600,delay:n*120,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"}));
+  rest.forEach(e=>anim(e,[{opacity:0},{opacity:1}],{duration:400,delay:350,fill:"backwards"}));
+  if(now){anim(now,[{opacity:0,transform:"translateY(40px) scale(.94)"},{opacity:1,transform:"none"}],{duration:700,delay:250,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"});
+    anim(now.querySelector(".sweep"),[{transform:"translateX(-120%)"},{transform:"translateX(120%)"}],{duration:900,delay:800,easing:"ease-in-out"});
+    const bar=now.querySelector(".bar i");if(bar)anim(bar,[{transform:"scaleX(0)"},{transform:`scaleX(${bar.style.getPropertyValue("--p")})`}],{duration:900,delay:700,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"});}
+  document.querySelectorAll("#list .row").forEach((r,n)=>anim(r,[{opacity:0,transform:"translateY(24px)"},{opacity:1,transform:"none"}],{duration:500,delay:650+n*70,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"}));
+  anim(phone.querySelector(".plus"),[{opacity:0,transform:"scale(.4) rotate(-90deg)"},{opacity:1,transform:"none"}],{duration:500,delay:900,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"});
+}
+
+/* ---------- actions ---------- */
+function toast(msg){phone.querySelector(".toast")?.remove();const t=document.createElement("div");t.className="toast";t.role="status";t.textContent=msg;phone.append(t);
+  anim(t,[{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:200,easing:"cubic-bezier(.16,1,.3,1)"});
+  setTimeout(()=>anim(t,[{opacity:1},{opacity:0}],{duration:150,easing:"cubic-bezier(.7,0,.84,0)"}).finished.then(()=>t.remove()),2400)}
+
+async function move(id){
+  const i=items.find(x=>x.id==id),row=phone.querySelector(`[data-id="${id}"]`),target=phone.querySelector(`[data-tab="${NEXT[i.st]}"]`);
+  if(mode==="calm"){await anim(row,[{opacity:1},{opacity:0,transform:"translateX(8px)"}],{duration:150,easing:"cubic-bezier(.7,0,.84,0)"}).finished}
+  else{ // the row flies into the tab it is moving to, so you can see where it went
+    const a=row.getBoundingClientRect(),b=target.getBoundingClientRect();
+    await anim(row,[{transform:"none",opacity:1},{transform:`translate(${b.left+b.width/2-a.left-a.width/2}px,${b.top-a.top}px) scale(.2)`,opacity:0}],{duration:450,easing:"cubic-bezier(.7,0,.84,0)"}).finished}
+  i.st=NEXT[i.st];render();
+  const t=phone.querySelector(`[data-tab="${i.st}"] .n`);anim(t,[{transform:"scale(1.8)"},{transform:"none"}],{duration:mode==="calm"?200:400,easing:"cubic-bezier(.16,1,.3,1)"});
+  toast(`Moved to ${LABEL[i.st]}: ${i.t}`)}
+
+async function markDone(id){
+  const i=items.find(x=>x.id==id),card=phone.querySelector(".now");
+  if(mode==="calm"){await anim(card,[{opacity:1},{opacity:0,transform:"translateY(-6px)"}],{duration:150,easing:"cubic-bezier(.7,0,.84,0)"}).finished;i.st="done";render();
+    const c=phone.querySelector(".now");anim(c,[{opacity:0,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:200,easing:"cubic-bezier(.16,1,.3,1)"});toast(`Done: ${i.t}`);return}
+  // Cinematic: a Done stamp lands, sparks burst, the card lifts away and the next one rises.
+  const s=document.createElement("div");s.className="stamp";s.innerHTML="<b>Done</b>";phone.append(s);
+  await anim(s.firstChild,[{opacity:0,transform:"scale(2.4) rotate(-14deg)"},{opacity:1,transform:"scale(1) rotate(-8deg)"}],{duration:280,easing:"cubic-bezier(.7,0,.84,0)"}).finished;
+  const r=s.firstChild.getBoundingClientRect(),p=phone.getBoundingClientRect(),cols=["var(--accent)","var(--done)","var(--warn-fg)"];
+  for(let n=0;n<18;n++){const d=document.createElement("i");d.className="spark";d.style.cssText=`left:${r.left-p.left+r.width/2}px;top:${r.top-p.top+r.height/2}px;background:${cols[n%3]}`;phone.append(d);
+    const ang=n/18*Math.PI*2,dist=90+Math.random()*60;anim(d,[{transform:"none",opacity:1},{transform:`translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px) rotate(${n*40}deg)`,opacity:0}],{duration:700,easing:"cubic-bezier(.16,1,.3,1)"}).finished.then(()=>d.remove())}
+  await anim(card,[{transform:"none",opacity:1},{transform:"translateY(-30px) rotateX(35deg) scale(.9)",opacity:0}],{duration:450,delay:250,easing:"cubic-bezier(.7,0,.84,0)",fill:"forwards"}).finished;
+  anim(s,[{opacity:1},{opacity:0}],{duration:300}).finished.then(()=>s.remove());
+  i.st="done";render();const c=phone.querySelector(".now");
+  anim(c,[{opacity:0,transform:"translateY(40px) scale(.94)"},{opacity:1,transform:"none"}],{duration:600,easing:"cubic-bezier(.16,1,.3,1)"});
+  toast(`Done: ${i.t}`)}
+
+async function randomPick(){
+  const pool=shown().filter(i=>i.st==="todo");if(!pool.length)return toast("Nothing in To do yet.");
+  const pick=pool[Math.floor(Math.random()*pool.length)],reel=phone.querySelector("#reel");
+  if(mode==="cine"&&!still){ // slot-machine reel: titles spin, slow down, land on the pick
+    const spins=[...Array(14)].map((_,n)=>pool[n%pool.length].t).concat(pick.t);
+    reel.innerHTML=spins.map(t=>`<span>${esc(t)}</span>`).join("");
+    await reel.animate([{transform:"translateY(0)"},{transform:`translateY(-${(spins.length-1)*20}px)`}],{duration:1600,easing:"cubic-bezier(.12,.8,.2,1)",fill:"forwards"}).finished;
+    await wait(250)}
+  const row=phone.querySelector(`[data-id="${pick.id}"]`);row.scrollIntoView({block:"center",behavior:still?"auto":"smooth"});
+  anim(row,[{background:"var(--soft)"},{background:"transparent"}],{duration:mode==="calm"?300:1200});
+  if(mode==="cine")anim(row,[{transform:"scale(1)"},{transform:"scale(1.03)"},{transform:"scale(1)"}],{duration:500,easing:"ease-out"});
+  toast(`Random pick: ${pick.t}`);if(reel&&mode==="cine")setTimeout(()=>{reel.innerHTML="<span>Random pick</span>";reel.getAnimations().forEach(a=>a.cancel())},2500)}
+
+function switchTab(t){
+  if(t===tab)return;const dir=["doing","todo","done"].indexOf(t)>["doing","todo","done"].indexOf(tab)?1:-1;tab=t;
+  const doRender=()=>{render();if(mode==="calm")rowsIn(false)};
+  if(mode==="cine"&&document.startViewTransition&&!still){
+    document.documentElement.style.setProperty("--dir",dir);document.startViewTransition(()=>{render();phone.querySelector("#list").style.viewTransitionName="list"})}
+  else doRender()}
+
+phone.addEventListener("click",async e=>{const b=e.target.closest("button");if(!b||busy)return;busy=true;
+  try{if(b.dataset.tab)switchTab(b.dataset.tab);else if(b.dataset.f){filter=b.dataset.f;render();rowsIn(mode==="cine")}
+  else if(b.dataset.id)await move(b.dataset.id);else if(b.dataset.done)await markDone(b.dataset.done);
+  else if(b.dataset.act==="rand")await randomPick();else if(b.dataset.act==="backup")toast("Backup saved to Downloads.");
+  else if(b.dataset.act==="add")toast("Paste a link here, or use Share in YouTube or Chrome.")}finally{busy=false}});
+phone.addEventListener("input",e=>{if(e.target.id!=="q")return;query=e.target.value.toLowerCase();render();const q=document.getElementById("q");q.focus();q.setSelectionRange(q.value.length,q.value.length)});
+function choose(m){mode=m;items=JSON.parse(ORIGINAL);tab="doing";filter="all";query="";pA.setAttribute("aria-pressed",m==="calm");pB.setAttribute("aria-pressed",m==="cine");opening()}
+pA.onclick=()=>choose("calm");pB.onclick=()=>choose("cine");replay.onclick=()=>choose(mode);
+opening();
+</script>
+<style>
+::view-transition-old(list){animation:300ms cubic-bezier(.7,0,.84,0) both vt-out}
+::view-transition-new(list){animation:500ms cubic-bezier(.16,1,.3,1) both vt-in}
+@keyframes vt-out{to{opacity:0;transform:translateX(calc(var(--dir,1)*-40px))}}
+@keyframes vt-in{from{opacity:0;transform:translateX(calc(var(--dir,1)*60px))}}
+</style>

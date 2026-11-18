@@ -112,4 +112,6 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 1. Owner: install on the phone and share a YouTube video and a Chrome page to Stash. Report back what happened (this is the step 3 manual check).
 2. Then step 4 (Courses, Certificates, Books, Projects): 2+ prototypes first (rule 1), asked one at a time as clickable choices. Include a way to change a shared draft's section (today non-YouTube shares land in Courses). Images in backups come with step 4 (see `src/backup.ts`).
 
-Prototypes: step 2 `prototypes/videos.html` (https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg), step 3 icon `prototypes/icons.html` (https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX).
+**Ready-made prompts for new chats** (one per remaining piece, 2026-11-18): `docs/next/01-videos.md` (phone check), `02-share-button.md` (phone check), `03-sections.md` (step 4), `04-search-tags-filters.md` (step 5), `05-online-and-phone.md` (step 6), `06-android-app.md` (step 7). Paste one into a new Claude Code chat with this repo attached.
+
+Prototypes: layout `prototypes/home.html`, motion `prototypes/motion.html`, look `prototypes/look.html`; step 2 `prototypes/videos.html` (https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg), step 3 icon `prototypes/icons.html` (https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX).

@@ -1,0 +1,167 @@
+<title>Stash Home Prototypes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Manrope:wght@500;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a chooser bar, then one phone-sized frame showing prototype A or B. */
+:root{
+  --page:#eef1f4; --frame:#ffffff; --ink:#18212b; --muted:#5b6672; --line:#dde3e9;
+  --a-accent:#0f766e; --a-soft:#d9f0ec; --a-chip:#f1f4f6;
+  --b-bg:#f6f5fb; --b-card:#ffffff; --b-accent:#4f46e5; --b-soft:#e7e5fb;
+  --warn-bg:#fff1d6; --warn-fg:#8a4b00; --done:#15803d;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif;
+  --b-display:"Manrope",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --page:#0e1318; --frame:#151c23; --ink:#e7edf2; --muted:#9aa6b2; --line:#26313b;
+  --a-accent:#2dd4bf; --a-soft:#123632; --a-chip:#1d262f;
+  --b-bg:#14131c; --b-card:#1d1c28; --b-accent:#a5a1ff; --b-soft:#2a2850;
+  --warn-bg:#3a2a0c; --warn-fg:#ffcf7a; --done:#4ade80; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --page:#0e1318; --frame:#151c23; --ink:#e7edf2; --muted:#9aa6b2; --line:#26313b;
+  --a-accent:#2dd4bf; --a-soft:#123632; --a-chip:#1d262f;
+  --b-bg:#14131c; --b-card:#1d1c28; --b-accent:#a5a1ff; --b-soft:#2a2850;
+  --warn-bg:#3a2a0c; --warn-fg:#ffcf7a; --done:#4ade80; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--a-accent);outline-offset:2px}
+.top{max-width:430px;margin:0 auto 16px;display:grid;gap:10px}
+.top h1{font-family:var(--display);font-size:20px;margin:0}
+.top p{margin:0;color:var(--muted);line-height:1.5}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pick button{border:2px solid var(--line);background:var(--frame);border-radius:12px;padding:10px;text-align:left}
+.pick button[aria-pressed="true"]{border-color:var(--a-accent)}
+.pick b{display:block;font-family:var(--display)}
+.pick span{font-size:12px;color:var(--muted)}
+.phone{max-width:390px;margin:0 auto;border:1px solid var(--line);border-radius:28px;overflow:hidden;min-height:720px;position:relative;display:flex;flex-direction:column}
+.note{max-width:430px;margin:12px auto 0;font-size:12px;color:var(--muted);text-align:center}
+
+/* ---------- Prototype A: "Shelf" — thumbnail cards, sections as chips ---------- */
+.A{background:var(--frame);font-family:var(--body)}
+.A header{padding:18px 16px 8px;display:flex;justify-content:space-between;align-items:center}
+.A .logo{font-family:var(--display);font-weight:700;font-size:22px}
+.A .rand{border:0;background:var(--a-soft);color:var(--a-accent);border-radius:999px;padding:8px 12px;font-weight:600;font-size:13px}
+.search{margin:4px 16px 10px;display:block;width:calc(100% - 32px);padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--a-chip);color:var(--ink);font:inherit}
+.A .chips{display:flex;gap:6px;overflow-x:auto;padding:0 16px 10px}
+.A .chip{border:1px solid var(--line);background:var(--frame);border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.A .chip[aria-pressed="true"]{background:var(--ink);color:var(--frame);border-color:var(--ink)}
+.A main{padding:4px 16px 96px;display:grid;gap:18px;flex:1}
+.A h2{font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.A .list{display:grid;gap:10px}
+.A .card{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:8px;background:var(--frame);text-align:left;width:100%}
+.A .thumb{aspect-ratio:16/10;border-radius:9px;display:grid;place-items:center;font-family:var(--display);font-weight:700;color:#fff;font-size:13px;max-width:100%}
+.A .card h3{font-size:14px;margin:2px 0 4px;line-height:1.3;font-weight:600}
+.A .meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.A .fab{position:absolute;right:16px;bottom:16px;border:0;background:var(--a-accent);color:var(--frame);border-radius:16px;padding:14px 18px;font-weight:600;box-shadow:0 6px 18px rgb(0 0 0/.18)}
+
+/* ---------- Prototype B: "Focus" — one big Now card, compact rows by status ---------- */
+.B{background:var(--b-bg);font-family:var(--body)}
+.B header{padding:18px 16px 6px}
+.B .hello{font-family:var(--b-display);font-weight:800;font-size:26px;margin:0}
+.B .sub{color:var(--muted);font-size:13px;margin:2px 0 0}
+.B .now{margin:4px 16px 12px;border-radius:20px;background:var(--b-accent);color:var(--b-bg);padding:16px;display:grid;gap:8px}
+.B .now small{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.B .now h3{font-family:var(--b-display);font-size:19px;margin:0;line-height:1.25}
+.B .bar{height:6px;border-radius:9px;background:rgb(255 255 255/.3);overflow:hidden}
+.B .bar i{display:block;height:100%;background:var(--b-bg)}
+.B .nowrow{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.B .nowrow button{border:0;background:var(--b-bg);color:var(--b-accent);border-radius:10px;padding:7px 12px;font-weight:700}
+.B .tabs{display:grid;grid-template-columns:repeat(3,1fr);margin:6px 16px 10px;background:var(--b-card);border-radius:12px;padding:4px;border:1px solid var(--line)}
+.B .tabs button{border:0;background:none;border-radius:9px;padding:8px;font-weight:600;font-size:13px;color:var(--muted)}
+.B .tabs button[aria-pressed="true"]{background:var(--b-soft);color:var(--ink)}
+.B main{padding:0 16px 96px;flex:1}
+.B .row{display:grid;grid-template-columns:36px 1fr auto;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.B .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--b-soft);font-family:var(--mono);font-size:11px;font-weight:500;color:var(--b-accent)}
+.B .row h3{font-size:14px;margin:0 0 2px;font-weight:600;line-height:1.3}
+.B .row p{margin:0;font-size:12px;color:var(--muted)}
+.B .dock{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,1fr);background:var(--b-card);border-top:1px solid var(--line);padding:8px 4px 10px}
+.B .dock button{border:0;background:none;font-size:11px;color:var(--muted);display:grid;gap:2px;justify-items:center;padding:4px}
+.B .dock button[aria-pressed="true"]{color:var(--b-accent);font-weight:700}
+.B .dock b{font-family:var(--mono);font-size:12px}
+.B .plus{position:absolute;right:16px;bottom:72px;width:52px;height:52px;border-radius:16px;border:0;background:var(--b-accent);color:var(--b-bg);font-size:26px;box-shadow:0 6px 18px rgb(0 0 0/.2)}
+
+/* shared bits */
+.badge{background:var(--warn-bg);color:var(--warn-fg);border-radius:6px;padding:2px 6px;font-size:11px;font-weight:600}
+.st{font-size:11px;font-weight:600}
+.st.done{color:var(--done)}
+.empty{text-align:center;color:var(--muted);padding:28px 12px;line-height:1.5}
+.toast{position:absolute;left:16px;right:16px;bottom:84px;background:var(--ink);color:var(--frame);border-radius:12px;padding:12px 14px;font-size:13px}
+@media (prefers-reduced-motion:no-preference){.card,.row{transition:transform .12s}.card:active,.row:active{transform:scale(.98)}}
+</style>
+
+<div class="top">
+  <h1>Stash: pick a home screen</h1>
+  <p>Two clickable prototypes with example items. Try the search, the section filters, "Random pick", and tap an item to move it To do → Doing → Done.</p>
+  <div class="pick" role="group" aria-label="Choose prototype">
+    <button id="pickA" aria-pressed="true"><b>A · Shelf</b><span>Big thumbnails, section chips, search on top</span></button>
+    <button id="pickB" aria-pressed="false"><b>B · Focus</b><span>One "now" card, compact rows, section tab bar</span></button>
+  </div>
+</div>
+<div class="phone" id="phone"></div>
+<p class="note">Example data only. Real video thumbnails from YouTube will replace the colored boxes.</p>
+
+<script>
+const SECTIONS = {video:["Videos","VID","#c2410c"],course:["Courses","CRS","#0369a1"],cert:["Certificates","CRT","#7c3aed"],book:["Books","BK","#b45309"],project:["Projects","PRJ","#0f766e"]};
+const items = [
+  {id:1,s:"project",t:"Build a budget tracker in React",st:"doing",check:[3,7],tags:["react"]},
+  {id:2,s:"video",t:"Supabase in 100 seconds",st:"doing",src:"Fireship · 2:41",tags:["supabase"]},
+  {id:3,s:"cert",t:"Google Data Analytics Certificate",st:"todo",src:"Coursera · Paid",tags:["data"]},
+  {id:4,s:"book",t:"Atomic Habits",st:"todo",src:"James Clear",tags:["habits"]},
+  {id:5,s:"course",t:"The Odin Project — Full Stack JavaScript",st:"todo",src:"theodinproject.com",tags:["javascript"]},
+  {id:6,s:"video",t:"https://youtu.be/…",st:"todo",draft:true,src:"Saved from Share",tags:[]},
+  {id:7,s:"course",t:"CS50x Introduction to Computer Science",st:"done",src:"edx.org",tags:["cs"]},
+  {id:8,s:"project",t:"Portfolio website",st:"todo",draft:true,check:[0,0],tags:["web"]},
+];
+const ST = {todo:"To do",doing:"Doing",done:"Done"}, NEXT = {todo:"doing",doing:"done",done:"todo"};
+let proto="A", filter="all", query="", tab="doing", toast="";
+const phone=document.getElementById("phone");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const sub=i=>i.check?(i.check[1]?`${i.check[0]}/${i.check[1]} done`:"No checklist yet"):(i.src||"");
+const visible=()=>items.filter(i=>(filter==="all"||i.s===filter)&&(!query||(i.t+" "+i.tags.join(" ")).toLowerCase().includes(query)));
+function randomPick(){const p=items.filter(i=>i.st==="todo");const i=p[Math.floor(Math.random()*p.length)];say(i?`Random pick: ${i.t}`:"Nothing in To do yet.")}
+function say(m){toast=m;render();clearTimeout(say.t);say.t=setTimeout(()=>{toast="";render()},2600)}
+function cycle(id){const i=items.find(x=>x.id==id);i.st=NEXT[i.st];say(`Moved to ${ST[i.st]}: ${i.t}`)}
+
+function renderA(){
+  const v=visible(), groups=["doing","todo","done"].map(st=>[st,v.filter(i=>i.st===st)]).filter(g=>g[1].length);
+  return `<div class="A phone-in" style="display:contents">
+  <header><span class="logo">Stash</span><button class="rand" data-act="rand">🎲 Random pick</button></header>
+  <input class="search" id="q" type="search" placeholder="Search titles, notes, tags" aria-label="Search" value="${esc(query)}">
+  <div class="chips" role="group" aria-label="Filter by section">
+    ${[["all","All"],...Object.entries(SECTIONS).map(([k,v])=>[k,v[0]])].map(([k,l])=>`<button class="chip" data-f="${k}" aria-pressed="${filter===k}">${l}</button>`).join("")}
+  </div>
+  <main>${groups.length?groups.map(([st,list])=>`<section><h2>${ST[st]} · ${list.length}</h2><div class="list">${list.map(i=>`
+    <button class="card" data-id="${i.id}" aria-label="${esc(i.t)}, ${ST[i.st]}. Tap to change status">
+      <span class="thumb" style="background:${SECTIONS[i.s][2]}">${SECTIONS[i.s][1]}</span>
+      <span><h3>${esc(i.t)}</h3><span class="meta">${esc(sub(i))}${i.draft?'<span class="badge">Needs details</span>':""}${i.st==="done"?'<span class="st done">✓ Done</span>':""}</span></span>
+    </button>`).join("")}</div></section>`).join(""):`<p class="empty">Nothing matches.<br>Clear the search or pick "All", or tap Share in YouTube to save something.</p>`}</main>
+  <button class="fab" data-act="add">+ Save link</button></div>`;
+}
+function renderB(){
+  const now=items.find(i=>i.st==="doing"&&(filter==="all"||i.s===filter));
+  const v=visible().filter(i=>i.st===tab&&i!==now);
+  const pct=now&&now.check?Math.round(now.check[0]/now.check[1]*100):null;
+  return `<div class="B" style="display:contents">
+  <header><p class="hello">Keep going</p><p class="sub">${items.filter(i=>i.st==="doing").length} in progress · ${items.filter(i=>i.st==="todo").length} waiting</p></header>
+  <input class="search" id="q" type="search" placeholder="Search titles, notes, tags" aria-label="Search" value="${esc(query)}">
+  ${now?`<div class="now"><small>Now · ${SECTIONS[now.s][0]}</small><h3>${esc(now.t)}</h3>${pct!==null?`<div class="bar" aria-label="${pct}% done"><i style="width:${pct}%"></i></div>`:""}<div class="nowrow"><span>${esc(sub(now))}</span><button data-id="${now.id}">Mark done</button></div></div>`:""}
+  <div class="tabs" role="group" aria-label="Status">${["doing","todo","done"].map(s=>`<button data-tab="${s}" aria-pressed="${tab===s}">${ST[s]}</button>`).join("")}</div>
+  <main>${tab==="todo"?`<button class="row" data-act="rand" style="border-bottom:1px dashed var(--line)"><span class="ic">?</span><span><h3>Random pick</h3><p>Can't choose? Let the app pick one for you.</p></span><span></span></button>`:""}
+  ${v.length?v.map(i=>`<button class="row" data-id="${i.id}" aria-label="${esc(i.t)}. Tap to change status">
+    <span class="ic">${SECTIONS[i.s][1]}</span><span><h3>${esc(i.t)}</h3><p>${esc(sub(i))}</p></span>${i.draft?'<span class="badge">Needs details</span>':"<span></span>"}</button>`).join(""):`<p class="empty">Nothing here yet.<br>Tap an item in another tab to move it here.</p>`}</main>
+  <button class="plus" data-act="add" aria-label="Save link">+</button>
+  <nav class="dock" aria-label="Sections">${[["all","All","∗"],...Object.entries(SECTIONS).map(([k,v])=>[k,v[0],v[1]])].map(([k,l,g])=>`<button data-f="${k}" aria-pressed="${filter===k}"><b>${g}</b>${l==="Certificates"?"Certs":l}</button>`).join("")}</nav></div>`;
+}
+function render(){
+  const f=document.activeElement&&document.activeElement.id;
+  phone.className="phone "+proto; phone.innerHTML=(proto==="A"?renderA():renderB())+(toast?`<div class="toast" role="status">${esc(toast)}</div>`:"");
+  if(f==="q"){const q=document.getElementById("q");q.focus();q.setSelectionRange(q.value.length,q.value.length)}
+}
+phone.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.f){filter=b.dataset.f;render()}else if(b.dataset.tab){tab=b.dataset.tab;render()}
+  else if(b.dataset.id)cycle(b.dataset.id);else if(b.dataset.act==="rand")randomPick();
+  else if(b.dataset.act==="add")say("In the real app: paste a link, or use Share in YouTube/Chrome.");});
+phone.addEventListener("input",e=>{if(e.target.id==="q"){query=e.target.value.toLowerCase();render()}});
+for(const p of ["A","B"])document.getElementById("pick"+p).onclick=()=>{proto=p;filter="all";query="";document.getElementById("pickA").setAttribute("aria-pressed",p==="A");document.getElementById("pickB").setAttribute("aria-pressed",p==="B");render()};
+render();
+</script>
