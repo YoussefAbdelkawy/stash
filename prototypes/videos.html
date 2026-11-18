@@ -1,0 +1,336 @@
+<title>Stash Video Flows</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Sora:wght@600;700;800&display=swap">
+<style>
+/* Layout: the Stash home screen, a floating + button, and two add flows (A sheet / B full page) to compare. */
+:root {
+  --bg: #0f0d1a; --surface: #1a1729; --chip: #242036; --ink: #f1eefb; --muted: #a49fbd; --line: #2b2740;
+  --accent: #b4a6ff; --on-accent: #120f20; --error: #ff8a80; --done: #5ee39a; --warn-bg: #3d2c10; --warn-fg: #ffd28a;
+  --glow1: #6d4cff55; --glow2: #e5484d33; --glow3: #12a59433; --scrim: rgb(5 3 15 / .6);
+  --shadow: 0 10px 30px rgb(0 0 0 / .35); --video: #e5484d; --book: #d9822b; --project: #12a594;
+  --display: "Sora", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #f4f2fb; --surface: #ffffff; --chip: #ece9f8; --ink: #17132a; --muted: #5f5a78; --line: #e4e0f2;
+  --accent: #5b3fe0; --on-accent: #ffffff; --error: #b42318; --done: #15803d; --warn-bg: #fff2dc; --warn-fg: #8a4b00;
+  --glow1: #6d4cff40; --glow2: #e5484d26; --glow3: #12a59426; --scrim: rgb(20 10 60 / .35); --shadow: 0 10px 30px rgb(40 20 120 / .12);
+  color-scheme: light; } }
+:root[data-theme="light"] {
+  --bg: #f4f2fb; --surface: #ffffff; --chip: #ece9f8; --ink: #17132a; --muted: #5f5a78; --line: #e4e0f2;
+  --accent: #5b3fe0; --on-accent: #ffffff; --error: #b42318; --done: #15803d; --warn-bg: #fff2dc; --warn-fg: #8a4b00;
+  --glow1: #6d4cff40; --glow2: #e5484d26; --glow3: #12a59426; --scrim: rgb(20 10 60 / .35); --shadow: 0 10px 30px rgb(40 20 120 / .12);
+  color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+.screen { position: relative; isolation: isolate; overflow-x: clip; max-width: 480px; margin: 0 auto; min-height: 100dvh;
+  padding-block: 16px 120px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 16px; }
+.screen::before { content: ""; position: absolute; inset: -60px -30% auto; height: 440px; z-index: -1; pointer-events: none;
+  background: radial-gradient(40% 50% at 25% 40%, var(--glow1), transparent 70%), radial-gradient(35% 45% at 80% 30%, var(--glow2), transparent 70%), radial-gradient(40% 40% at 60% 75%, var(--glow3), transparent 70%); }
+
+.picker { display: grid; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px; }
+.picker p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--chip); border-radius: 12px; padding: 4px; }
+.seg button { border: 0; border-radius: 9px; padding: 9px 6px; background: none; font-weight: 600; font-size: 13.5px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+
+.hello { font-family: var(--display); font-weight: 700; font-size: 28px; letter-spacing: -.03em; margin: 0; }
+.sub { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
+
+.cover { position: relative; overflow: hidden; display: grid; place-items: center; color: #fff;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--c) 75%, #fff), var(--c) 55%, color-mix(in srgb, var(--c) 70%, #000)); }
+.cover::after { content: ""; position: absolute; inset: 0; background: radial-gradient(60% 50% at 30% 20%, rgb(255 255 255 / .35), transparent 70%); }
+.cover .icon { position: relative; z-index: 1; }
+.thumb { --c: var(--video); aspect-ratio: 16 / 9; }
+.thumb .stripe { position: absolute; inset: auto 0 0; height: 30%; background: linear-gradient(transparent, rgb(0 0 0 / .45)); }
+
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 4px 14px; }
+.row { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; width: 100%; padding: 12px 0; background: none; border: 0; border-bottom: 1px solid var(--line); text-align: left; }
+.row:last-child { border-bottom: 0; }
+.row .cover { width: 72px; border-radius: 10px; }
+.row .square { width: 52px; height: 52px; aspect-ratio: auto; border-radius: 12px; justify-self: center; }
+.row > span { min-width: 0; }
+.row strong { display: block; font-size: 15px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.meta { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.badge { background: var(--warn-bg); color: var(--warn-fg); border-radius: 999px; padding: 3px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.chev { color: var(--muted); }
+
+.fab { position: fixed; right: max(20px, calc(50% - 220px), env(safe-area-inset-right, 0px)); bottom: calc(22px + env(safe-area-inset-bottom, 0px)); z-index: 4;
+  width: 60px; height: 60px; border: 0; border-radius: 20px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; box-shadow: 0 12px 30px color-mix(in srgb, var(--accent) 45%, transparent); }
+.fab .icon { width: 26px; height: 26px; stroke-width: 2.2; }
+
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 6; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 7; max-width: 480px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-bottom: 0;
+  border-radius: 26px 26px 0 0; padding-block: 10px calc(22px + env(safe-area-inset-bottom, 0px)); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 14px; box-shadow: var(--shadow); max-height: 92dvh; overflow-y: auto; }
+.grab { width: 40px; height: 5px; border-radius: 9px; background: var(--line); justify-self: center; }
+.page { position: fixed; inset: 0; z-index: 7; background: var(--bg); overflow-y: auto; }
+.page-in { max-width: 480px; margin: 0 auto; padding-block: calc(14px + env(safe-area-inset-top, 0px)) 30px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); display: grid; gap: 16px; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+h2 { font-family: var(--display); font-size: 20px; letter-spacing: -.02em; margin: 0; }
+.iconbtn { width: 42px; height: 42px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; }
+
+label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.field { display: grid; gap: 6px; }
+input[type="url"], input[type="text"] { width: 100%; border: 1px solid var(--line); background: var(--chip); border-radius: 14px; padding: 13px 14px; font-size: 15px; }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.45; }
+.hint.err { color: var(--error); }
+.samples { display: flex; flex-wrap: wrap; gap: 6px; }
+.samples button { border: 1px solid var(--line); background: var(--chip); border-radius: 999px; padding: 6px 11px; font-size: 12px; color: var(--muted); }
+.paste-big { display: grid; justify-items: center; gap: 8px; border: 1.5px dashed color-mix(in srgb, var(--accent) 60%, var(--line)); background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 22px; padding: 30px 16px; font-weight: 700; font-family: var(--display); font-size: 17px; }
+.paste-big .icon { width: 30px; height: 30px; color: var(--accent); }
+.paste-big small { font-family: var(--body); font-weight: 500; font-size: 12.5px; color: var(--muted); }
+.or { text-align: center; font-size: 12px; color: var(--muted); }
+
+.preview { display: grid; gap: 10px; border: 1px solid var(--line); background: var(--chip); border-radius: 18px; padding: 10px; }
+.preview .thumb { border-radius: 12px; }
+.sheet .thumb .icon, .preview .thumb .icon { width: 40px; height: 40px; }
+.preview strong { font-size: 15px; line-height: 1.35; padding: 0 4px; overflow-wrap: anywhere; }
+.preview .meta { padding: 0 4px 4px; }
+.shimmer { height: 15px; border-radius: 6px; margin: 2px 4px; background: linear-gradient(90deg, var(--line), var(--surface), var(--line)); background-size: 200% 100%; animation: shim 1.2s linear infinite; }
+@keyframes shim { to { background-position: -200% 0; } }
+
+.primary { border: 0; border-radius: 16px; padding: 15px; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 15.5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.primary[disabled] { opacity: .4; cursor: default; }
+.ghost { border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.dupe { display: grid; gap: 8px; background: var(--warn-bg); color: var(--warn-fg); border-radius: 14px; padding: 12px; font-size: 13.5px; line-height: 1.4; }
+.dupe button { justify-self: start; border: 0; border-radius: 10px; padding: 7px 12px; background: var(--warn-fg); color: var(--warn-bg); font-weight: 700; font-size: 13px; }
+
+.status { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--chip); border-radius: 14px; padding: 4px; }
+.status button { border: 0; border-radius: 10px; padding: 10px 4px; background: none; font-weight: 600; font-size: 14px; color: var(--muted); }
+.status button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 2px 8px rgb(0 0 0 / .15); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.danger { color: var(--error); }
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); max-width: 448px; margin: 0 auto; z-index: 9;
+  background: var(--ink); color: var(--bg); border-radius: 14px; padding: 12px 14px; font-size: 13px; box-shadow: var(--shadow); }
+.note { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+@media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } }
+</style>
+
+<main class="screen" id="screen">
+  <section class="picker" aria-label="Prototype controls">
+    <p><b>Prototype, step 2 (Videos).</b> Pick an add flow, then tap <b>+</b>. Tap any row to see the proposed detail sheet. Try the sample links, or paste your own YouTube link.</p>
+    <div class="seg" role="group" aria-label="Add flow">
+      <button id="flowA" aria-pressed="true">A · Bottom sheet</button>
+      <button id="flowB" aria-pressed="false">B · Full page</button>
+    </div>
+  </section>
+
+  <header>
+    <h1 class="hello">Keep going</h1>
+    <p class="sub" id="sub"></p>
+  </header>
+
+  <div class="list" id="list"></div>
+  <p class="note">In this prototype the thumbnail is a red stand-in and titles come from a small sample list, because artifact pages can't load YouTube. The real app shows the actual thumbnail and the title from YouTube.</p>
+</main>
+
+<button class="fab" id="fab" aria-label="Add a video"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+<div id="layer"></div>
+
+<script>
+const ICON = {
+  video: '<rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="M10.5 9.2l4.6 2.8-4.6 2.8z" fill="currentColor"/>',
+  book: '<path d="M5 4.5A1.5 1.5 0 016.5 3H19v15H6.5A1.5 1.5 0 005 19.5z"/><path d="M5 19.5A1.5 1.5 0 006.5 21H19"/>',
+  project: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 16.5l9 5 9-5"/>',
+  chevron: '<path d="M9.5 6l6 6-6 6"/>', close: '<path d="M6 6l12 12M18 6L6 18"/>', back: '<path d="M14.5 6l-6 6 6 6"/>',
+  paste: '<rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9.5 4V3h5v1"/><path d="M9.5 11h5M9.5 15h3"/>',
+  play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>', edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  archive: '<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10h14V9M10 13h4"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+}
+const svg = (n, cls = 'icon') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON[n]}</svg>`
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches
+const EASE = 'cubic-bezier(.16,1,.3,1)'
+const play = (el, frames, opts) => (!el || still()) ? Promise.resolve() : el.animate(frames, opts).finished.catch(() => {})
+
+// Sample titles stand in for YouTube's oEmbed reply (artifacts can't call YouTube).
+const SAMPLES = {
+  'https://youtu.be/rfscVS0vtbw?si=Xy12': 'Learn Python - Full Course for Beginners',
+  'https://www.youtube.com/watch?v=SqcY0GlETPk&t=42s': 'React Tutorial for Beginners',
+  'https://m.youtube.com/shorts/aqz-KE-bpKQ': null, // title lookup "fails" → saves as a Draft
+}
+const KNOWN = { rfscVS0vtbw: 'Learn Python - Full Course for Beginners', SqcY0GlETPk: 'React Tutorial for Beginners' }
+
+function youTubeId(text) {
+  let u
+  try { u = new URL(text.trim()) } catch { return null }
+  if (!/^https?:$/.test(u.protocol) || text.length > 2000) return null
+  const host = u.hostname.replace(/^(www|m|music)\./, '')
+  let id = null
+  if (host === 'youtu.be') id = u.pathname.slice(1)
+  else if (host === 'youtube.com') id = u.pathname === '/watch' ? u.searchParams.get('v') : (u.pathname.match(/^\/(shorts|embed|live)\/([^/]+)/) || [])[2]
+  return id && /^[\w-]{11}$/.test(id) ? id : null
+}
+
+let flow = 'A'
+let items = [
+  { id: 'SqcY0GlETPk', section: 'video', status: 'doing', title: 'React Tutorial for Beginners', draft: false },
+  { id: 'b1', section: 'book', status: 'todo', title: 'Atomic Habits', draft: false },
+  { id: 'p1', section: 'project', status: 'todo', title: 'Personal budget tracker', draft: true },
+]
+const LABEL = { todo: 'To do', doing: 'Doing', done: 'Done' }
+const ONE = { video: 'Video', book: 'Book', project: 'Project' }
+
+function cover(i) {
+  return i.section === 'video'
+    ? `<span class="cover thumb">${svg('play')}<span class="stripe"></span></span>`
+    : `<span class="cover square" style="--c: var(--${i.section})">${svg(i.section)}</span>`
+}
+function render() {
+  document.getElementById('sub').textContent = `${items.filter((i) => i.status === 'doing').length} in progress, ${items.filter((i) => i.status === 'todo').length} waiting`
+  document.getElementById('list').innerHTML = items.map((i) => `
+    <button class="row" data-id="${i.id}" aria-label="${esc(i.title || 'Untitled video')}, ${LABEL[i.status]}. Open details">
+      ${cover(i)}
+      <span><strong>${esc(i.title || 'youtube.com/' + i.id)}</strong>
+        <span class="meta"><span class="dot" style="--c: var(--${i.section})"></span>${ONE[i.section]} · ${LABEL[i.status]}</span></span>
+      ${i.draft || !i.title ? '<span class="badge">Needs details</span>' : svg('chevron', 'icon chev')}
+    </button>`).join('')
+}
+
+const layer = document.getElementById('layer')
+let lastFocus = null
+function open(html, kind) {
+  lastFocus = document.activeElement
+  layer.innerHTML = kind === 'sheet'
+    ? `<div class="scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true"><span class="grab"></span>${html}</div>`
+    : `<div class="page" role="dialog" aria-modal="true"><div class="page-in">${html}</div></div>`
+  const panel = layer.querySelector('.sheet, .page')
+  play(layer.querySelector('.scrim'), [{ opacity: 0 }, { opacity: 1 }], { duration: 250 })
+  play(panel, kind === 'sheet' ? [{ transform: 'translateY(100%)' }, { transform: 'none' }] : [{ opacity: 0, transform: 'translateY(30px) scale(.97)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: EASE })
+  return panel
+}
+async function close() {
+  const panel = layer.querySelector('.sheet, .page')
+  if (!panel) return
+  play(layer.querySelector('.scrim'), [{ opacity: 1 }, { opacity: 0 }], { duration: 220, fill: 'forwards' })
+  await play(panel, panel.classList.contains('sheet') ? [{ transform: 'none' }, { transform: 'translateY(100%)' }] : [{ opacity: 1 }, { opacity: 0, transform: 'translateY(20px)' }], { duration: 260, easing: 'cubic-bezier(.7,0,.84,0)', fill: 'forwards' })
+  layer.innerHTML = ''
+  lastFocus?.focus?.()
+}
+layer.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) close() })
+addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
+
+function toast(text) {
+  document.querySelector('.toast')?.remove()
+  const t = Object.assign(document.createElement('div'), { className: 'toast', role: 'status', textContent: text })
+  document.body.append(t)
+  play(t, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 200, easing: EASE })
+  setTimeout(() => t.remove(), 2600)
+}
+
+const sampleButtons = Object.keys(SAMPLES).map((s, n) => `<button type="button" data-sample="${n}">${['youtu.be link', 'watch link + time', 'Short (title fails)'][n]}</button>`).join('')
+
+// The shared preview logic for both flows.
+function wire(panel) {
+  const input = panel.querySelector('#link'), out = panel.querySelector('#out'), save = panel.querySelector('#save')
+  let state = null, timer
+  function check() {
+    clearTimeout(timer)
+    const text = input.value
+    const id = youTubeId(text)
+    save.disabled = !id
+    if (!text.trim()) { out.innerHTML = '<p class="hint">Works with youtube.com, youtu.be, Shorts and live links.</p>'; return }
+    if (!id) { out.innerHTML = '<p class="hint err">That doesn\'t look like a YouTube link. Check it starts with https://youtube.com or https://youtu.be.</p>'; return }
+    const existing = items.find((i) => i.id === id)
+    if (existing) {
+      out.innerHTML = `<div class="dupe"><span><b>Already saved</b> in ${LABEL[existing.status]}: ${esc(existing.title || 'Untitled')}</span><button type="button" id="openExisting">Open it</button></div>`
+      save.disabled = true
+      out.querySelector('#openExisting').onclick = async () => { await close(); details(existing) }
+      return
+    }
+    out.innerHTML = `<div class="preview">${cover({ section: 'video' })}<div class="shimmer"></div><span class="meta">Getting the title from YouTube…</span></div>`
+    play(out.firstElementChild, [{ opacity: 0, transform: 'translateY(16px) scale(.96)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: EASE })
+    state = { id, title: undefined }
+    timer = setTimeout(() => {
+      state.title = KNOWN[id] ?? null
+      out.querySelector('.preview').innerHTML = `${cover({ section: 'video' })}${state.title
+        ? `<strong>${esc(state.title)}</strong><span class="meta"><span class="dot" style="--c: var(--video)"></span>Video · youtu.be/${id}</span>`
+        : `<strong>youtube.com/${id}</strong><span class="meta"><span class="badge">Needs details</span>No title found. It still saves; add the title later.</span>`}`
+    }, 700)
+  }
+  input.addEventListener('input', check)
+  panel.querySelectorAll('[data-sample]').forEach((b) => b.onclick = () => { input.value = Object.keys(SAMPLES)[b.dataset.sample]; check() })
+  panel.querySelector('#pasteBtn')?.addEventListener('click', () => {
+    // Real app: navigator.clipboard.readText(). Artifacts can't read the clipboard, so we fill a sample.
+    input.value = Object.keys(SAMPLES)[0]; check()
+  })
+  save.onclick = async () => {
+    const id = youTubeId(input.value)
+    if (!id) return
+    const title = state?.id === id && state.title !== undefined ? state.title : (KNOWN[id] ?? null)
+    items.unshift({ id, section: 'video', status: 'todo', title, draft: !title })
+    await close()
+    render()
+    play(document.querySelector(`[data-id="${id}"]`), [{ opacity: 0, transform: 'translateY(40px) scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: 650, easing: EASE })
+    toast(title ? `Saved to To do: ${title}` : 'Saved as a Draft. Add the title when you have a minute.')
+  }
+  check()
+  input.focus()
+}
+
+function addA() {
+  const panel = open(`
+    <div class="bar"><h2>Add a video</h2><button class="iconbtn" data-close aria-label="Close">${svg('close')}</button></div>
+    <div class="field"><label for="link">YouTube link</label><input id="link" type="url" inputmode="url" placeholder="Paste a YouTube link" autocomplete="off"></div>
+    <div class="samples">${sampleButtons}</div>
+    <div id="out" aria-live="polite"></div>
+    <button class="primary" id="save" disabled>${svg('check')}Save to To do</button>`, 'sheet')
+  wire(panel)
+}
+function addB() {
+  const panel = open(`
+    <div class="bar"><button class="iconbtn" data-close aria-label="Back">${svg('back')}</button><h2>Add a video</h2><span style="width:42px"></span></div>
+    <button class="paste-big" id="pasteBtn" type="button">${svg('paste')}Paste from clipboard<small>Copied a YouTube link? One tap.</small></button>
+    <p class="or">or type it</p>
+    <div class="field"><label for="link">YouTube link</label><input id="link" type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="off"></div>
+    <div class="samples">${sampleButtons}</div>
+    <div id="out" aria-live="polite"></div>
+    <button class="primary" id="save" disabled>${svg('check')}Save to To do</button>`, 'page')
+  wire(panel)
+}
+
+// Proposed: tapping an item opens this sheet instead of moving it along.
+function details(item) {
+  const panel = open(`
+    ${item.section === 'video' ? `<span class="cover thumb" style="border-radius:14px">${svg('play')}<span class="stripe"></span></span>` : ''}
+    <div class="field"><label for="title">Title</label><input id="title" type="text" value="${esc(item.title || '')}" placeholder="Add a title"></div>
+    ${item.section === 'video' ? `<button class="primary" type="button" id="watch">${svg('play')}Open in YouTube</button>` : ''}
+    <div class="field"><label id="stLabel">Status</label>
+      <div class="status" role="group" aria-labelledby="stLabel">${['todo', 'doing', 'done'].map((s) => `<button type="button" data-st="${s}" aria-pressed="${item.status === s}">${LABEL[s]}</button>`).join('')}</div></div>
+    <div class="two"><button class="ghost" type="button" data-close>${svg('check')}Done editing</button><button class="ghost danger" type="button" id="archive">${svg('archive')}Archive</button></div>
+    <p class="hint">Archive hides it from your lists. Nothing is deleted.</p>`, 'sheet')
+  panel.querySelector('#watch')?.addEventListener('click', () => toast('In the app this opens the video in YouTube.'))
+  panel.querySelector('#title').addEventListener('input', (e) => { item.title = e.target.value.trim() || null; item.draft = !item.title; render() })
+  panel.querySelectorAll('[data-st]').forEach((b) => b.onclick = () => {
+    item.status = b.dataset.st
+    panel.querySelectorAll('[data-st]').forEach((x) => x.setAttribute('aria-pressed', x === b))
+    play(b, [{ transform: 'scale(1.12)' }, { transform: 'none' }], { duration: 350, easing: EASE })
+    render()
+  })
+  panel.querySelector('#archive').onclick = async () => {
+    items = items.filter((i) => i !== item)
+    await close(); render(); toast(`Archived: ${item.title || 'Untitled'}`)
+  }
+}
+
+document.getElementById('list').addEventListener('click', (e) => {
+  const row = e.target.closest('.row'); if (row) details(items.find((i) => i.id === row.dataset.id))
+})
+document.getElementById('fab').onclick = () => (flow === 'A' ? addA() : addB())
+for (const f of ['A', 'B']) document.getElementById('flow' + f).onclick = () => {
+  flow = f
+  document.getElementById('flowA').setAttribute('aria-pressed', f === 'A')
+  document.getElementById('flowB').setAttribute('aria-pressed', f === 'B')
+}
+render()
+</script>

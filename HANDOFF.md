@@ -80,7 +80,7 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 - Pick the app's name ("Stash" is a placeholder).
 - Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
 - Owner must authorize the Vercel connection (hosting only).
-- The working directory is not a git repo yet (nothing committed).
+- Git: local repo on branch `main` (step 1 committed 2026-11-18). Owner chose to push to a new GitHub repo; waiting for the owner to create an empty repo and give its name.
 
 ## 7. Next action
-Step 2 (Videos): show 2+ prototypes of the add-video flow (paste link, thumbnail + title from YouTube oEmbed, which works from the browser), owner picks, then build.
+Step 2 (Videos): prototypes are up in `prototypes/videos.html` (artifact https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg): add flow A bottom sheet / B full page, the proposed detail sheet on tap, and "Already saved" for duplicates. Ask the owner, one at a time: (1) add flow A/B, (2) tap opens the detail sheet?, (3) duplicates say "Already saved"? Then build.
