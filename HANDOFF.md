@@ -81,7 +81,7 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 - Pick the app's name ("Stash" is a placeholder).
 - Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
 - Owner must authorize the Vercel connection (hosting only).
-- Git: local repo on branch `main` (step 1 committed 2026-11-18). Owner chose to push to a new GitHub repo; waiting for the owner to create an empty repo and give its name.
+- Git: pushed to https://github.com/YoussefAbdelkawy/stash (private, branch `main`), 2026-11-18. Commit and push after every piece of work.
 
 ## 7. Next action
 Step 2 (Videos): prototypes are up in `prototypes/videos.html` (artifact https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg): add flow A bottom sheet / B full page, the proposed detail sheet on tap, and "Already saved" for duplicates. Add flow: B picked. Still to ask, one at a time: (2) tap opens the detail sheet?, (3) duplicates say "Already saved"? Then build.
