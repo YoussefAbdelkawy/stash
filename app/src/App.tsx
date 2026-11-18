@@ -3,13 +3,16 @@ import { flushSync } from 'react-dom'
 import { askToKeepData, loadItems, saveItem, saveItems } from './store'
 import { makeBackup, parseBackup } from './backup'
 import {
-  checklistProgress, displayTitle, needsDetails, nextStatus, pickNow, randomTodo,
+  checklistProgress, displayTitle, needsDetails, pickNow, randomTodo,
   SECTION_ONE, STATUS_LABEL, type Item, type Status,
 } from './items'
 import {
   celebrateDone, flyToTab, highlight, playOpening, pop, riseIn, slideTabs, spinReel, toastIn,
 } from './motion'
 import { Cover, Icon } from './Icon'
+import { Panel } from './Panel'
+import { AddVideo } from './AddVideo'
+import { Details } from './Details'
 import './App.css'
 
 const MAX_BACKUP_BYTES = 20 * 1024 * 1024
@@ -20,6 +23,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [tab, setTab] = useState<Status>('doing')
   const [toast, setToast] = useState('')
+  const [panel, setPanel] = useState<{ kind: 'add' } | { kind: 'item'; id: string } | null>(null)
   // shortcut: date is read once when the app opens; refresh it on resume if the app stays open past midnight.
   const [today] = useState(() => new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))
   const screen = useRef<HTMLElement>(null)
@@ -62,8 +66,32 @@ export default function App() {
     }
   }
 
-  const advance = (item: Item) => once(async () => {
-    const status = nextStatus(item.status)
+  async function update(next: Item) {
+    if (!(await store(next))) return false
+    setItems((list) => list!.map((i) => (i.id === next.id ? next : i)))
+    return true
+  }
+
+  async function add(item: Item) {
+    if (!(await store(item))) return false
+    flushSync(() => { setTab('todo'); setItems((list) => [item, ...list!]) })
+    riseIn($(`[data-id="${item.id}"]`))
+    setToast(item.title ? `Saved to To do: ${item.title}` : 'Saved as a Draft. Add the title when you have a minute.')
+    return true
+  }
+
+  async function archive(item: Item) {
+    if (!(await store({ ...item, archived_at: new Date().toISOString() }))) return
+    setItems((list) => list!.filter((i) => i.id !== item.id))
+    setToast(`Archived: ${displayTitle(item)}`)
+  }
+
+  const rename = (item: Item, typed: string) => {
+    const title = typed.trim() || null
+    update({ ...item, title, is_draft: !title })
+  }
+
+  const moveTo = (item: Item, status: Status) => once(async () => {
     if (!(await store({ ...item, status }))) return
     await flyToTab($(`[data-id="${item.id}"]`), $(`[data-tab="${status}"]`))
     flushSync(() => setItems((list) => list!.map((i) => (i.id === item.id ? { ...i, status } : i))))
@@ -119,6 +147,7 @@ export default function App() {
   }
 
   const list = items ?? []
+  const openItem = panel?.kind === 'item' ? list.find((i) => i.id === panel.id) : undefined
   const now = pickNow(list)
   const progress = now && checklistProgress(now)
   const rows = list.filter((i) => i.status === tab && i !== now)
@@ -145,11 +174,13 @@ export default function App() {
       {now && (
         <section className="now" aria-label="Now">
           <div className="sweep" />
-          <Cover section={now.section} />
-          <div>
-            <span className="kicker"><i />Now, {SECTION_ONE[now.section]}</span>
-            <h2>{displayTitle(now)}</h2>
-          </div>
+          <button className="now-open" onClick={() => setPanel({ kind: 'item', id: now.id })} aria-label={`${displayTitle(now)}. Open details`}>
+            <Cover section={now.section} url={now.url} />
+            <span>
+              <span className="kicker"><i />Now, {SECTION_ONE[now.section]}</span>
+              <h2>{displayTitle(now)}</h2>
+            </span>
+          </button>
           <div className="now-foot">
           {progress && (
             <div className="bar" role="img" aria-label={`${progress.done} of ${progress.total} steps done`}>
@@ -190,17 +221,17 @@ export default function App() {
             <Cover icon={tab === 'done' ? 'check' : 'all'} />
             <span>
               {list.length === 0
-                ? 'Nothing saved yet. Soon you can tap Share in YouTube or Chrome to save things here. Have a backup? Tap the restore button at the top.'
+                ? 'Nothing saved yet. Tap + to add a YouTube video. Have a backup? Tap the restore button at the top.'
                 : tab === 'done'
                   ? 'Nothing finished yet. Your wins will collect here.'
-                  : `Nothing in ${STATUS_LABEL[tab]}. Tap an item in another tab to move it here.`}
+                  : `Nothing in ${STATUS_LABEL[tab]}. Open an item in another tab and set its status to ${STATUS_LABEL[tab]}.`}
             </span>
           </div>
         )}
         {rows.map((i) => (
-          <button key={i.id} data-id={i.id} className="row" onClick={() => advance(i)}
-            aria-label={`${displayTitle(i)}, ${STATUS_LABEL[i.status]}. Tap to move to ${STATUS_LABEL[nextStatus(i.status)]}`}>
-            <Cover section={i.section} />
+          <button key={i.id} data-id={i.id} className="row" onClick={() => setPanel({ kind: 'item', id: i.id })}
+            aria-label={`${displayTitle(i)}, ${STATUS_LABEL[i.status]}${needsDetails(i) ? ', needs details' : ''}. Open details`}>
+            <Cover section={i.section} url={i.url} />
             <span>
               <strong>{displayTitle(i)}</strong>
               <span className="meta"><span className="dot" style={{ '--c': `var(--${i.section})` } as React.CSSProperties} />{SECTION_ONE[i.section]}</span>
@@ -209,6 +240,26 @@ export default function App() {
           </button>
         ))}
       </div>
+
+      <button className="fab" onClick={() => setPanel({ kind: 'add' })} aria-label="Add a video"><Icon name="plus" /></button>
+
+      {panel?.kind === 'add' && (
+        <Panel kind="page" label="Add a video" onClose={() => setPanel(null)}>
+          {(close) => (
+            <AddVideo items={list} close={close} onOpen={(i) => setPanel({ kind: 'item', id: i.id })}
+              onSave={async (item) => { if (await add(item)) close() }} />
+          )}
+        </Panel>
+      )}
+      {openItem && (
+        <Panel key={openItem.id} kind="sheet" label={displayTitle(openItem)} onClose={() => setPanel(null)}>
+          {(close) => (
+            <Details item={openItem} close={close} onRename={(t) => rename(openItem, t)}
+              onMove={async (s) => { await close(); moveTo(openItem, s) }}
+              onArchive={async () => { await close(); archive(openItem) }} />
+          )}
+        </Panel>
+      )}
 
       {toast && <div className="toast" role="status">{toast}</div>}
     </main>

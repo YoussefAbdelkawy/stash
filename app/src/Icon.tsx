@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import type { Section } from './items'
+import { thumbnailUrl, youTubeId } from './youtube'
 
 // Fixed SVG paths written here in code (never user text), so inserting them as HTML is safe.
 const PATHS = {
@@ -13,6 +15,11 @@ const PATHS = {
   download: '<path d="M12 4v11"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M5 19h14"/>',
   upload: '<path d="M12 15V4"/><path d="M7.5 8.5L12 4l4.5 4.5"/><path d="M5 19h14"/>',
   chevron: '<path d="M9.5 6l6 6-6 6"/>',
+  back: '<path d="M14.5 6l-6 6 6 6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  paste: '<rect x="6" y="4" width="12" height="17" rx="2.5"/><path d="M9.5 4V3h5v1"/><path d="M9.5 11h5M9.5 15h3"/>',
+  play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>',
+  archive: '<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10h14V9M10 13h4"/>',
 }
 export type IconName = keyof typeof PATHS
 
@@ -20,11 +27,15 @@ export function Icon({ name, className = 'icon' }: { name: IconName; className?:
   return <svg className={className} viewBox="0 0 24 24" aria-hidden="true" dangerouslySetInnerHTML={{ __html: PATHS[name] }} />
 }
 
-// A colored tile with the section's icon; stands in until real thumbnails arrive in step 2.
-export function Cover({ section, icon }: { section?: Section; icon?: IconName }) {
+// A colored tile with the section's icon. Videos show their YouTube thumbnail, and fall back to the tile offline.
+export function Cover({ section, icon, url }: { section?: Section; icon?: IconName; url?: string | null }) {
+  const [broken, setBroken] = useState(false)
+  const id = section === 'video' && url ? youTubeId(url) : null
   return (
-    <span className="cover" style={{ '--c': section ? `var(--${section})` : 'var(--accent)' } as React.CSSProperties}>
-      <Icon name={icon ?? section ?? 'all'} />
+    <span className={id ? 'cover thumb' : 'cover'} style={{ '--c': section ? `var(--${section})` : 'var(--accent)' } as React.CSSProperties}>
+      {id && !broken
+        ? <img src={thumbnailUrl(id)} alt="" loading="lazy" onError={() => setBroken(true)} />
+        : <Icon name={icon ?? section ?? 'all'} />}
     </span>
   )
 }

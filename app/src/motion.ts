@@ -41,6 +41,16 @@ export function flyToTab(row: Element | null, tab: Element | null) {
     { duration: 450, easing: EASE_IN, fill: 'forwards' })
 }
 
+// A sheet slides up from the bottom; a full page lifts in. Closing plays it backwards.
+const PANEL: Record<'sheet' | 'page', Keyframe[]> = {
+  sheet: [{ transform: 'translateY(100%)' }, { transform: 'none' }],
+  page: [{ opacity: 0, transform: 'translateY(30px) scale(.97)' }, { opacity: 1, transform: 'none' }],
+}
+export const panelIn = (el: Element | null, kind: 'sheet' | 'page') =>
+  play(el, PANEL[kind], { duration: 480, easing: EASE_OUT })
+export const panelOut = (el: Element | null, kind: 'sheet' | 'page') =>
+  play(el, [...PANEL[kind]].reverse(), { duration: 260, easing: EASE_IN, fill: 'forwards' })
+
 export function pop(el: Element | null) {
   return play(el, [{ transform: 'scale(1.8)' }, { transform: 'none' }], { duration: 400, easing: EASE_OUT })
 }
