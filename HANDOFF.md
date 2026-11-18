@@ -106,7 +106,7 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 - - Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
 - **Owner to do (once):** (1) make the repo public: GitHub → stash → Settings → General → Danger Zone → Change visibility → Public; (2) Settings → Pages → Source: **GitHub Actions**; (3) Actions tab → "Deploy to GitHub Pages" → Re-run (the first run fails until Pages is on). Then open https://youssefabdelkawy.github.io/stash/ in Chrome on Android → ⋮ → Add to Home screen / Install, and share a YouTube video to Stash. Not yet done or confirmed.
 - Vercel is no longer used.
-- Git: pushed to https://github.com/YoussefAbdelkawy/stash (private, branch `main`), 2026-11-18. Commit and push after every piece of work.
+- Git: pushed to https://github.com/YoussefAbdelkawy/stash (branch `main`; must be public for GitHub Pages), 2026-11-18. Commit and push after every piece of work.
 
 ## 7. Next action
 1. Owner: the three GitHub clicks in §6, then install on the phone and share a YouTube video and a Chrome page to Stash. Report back what happened (this is the step 3 manual check).
