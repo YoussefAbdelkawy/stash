@@ -14,7 +14,7 @@ export function readShare(search: string): Shared | null {
 }
 
 // A YouTube link becomes a video (its title is looked up after); anything else is a Course draft (owner's pick 2026-11-18).
-// shortcut: other links always land in Courses; let the owner change the section once step 4 adds the other sections' fields.
+// The owner moves it to the right section with the section chips in its detail sheet (step 4).
 export function itemFromShare(shared: Shared, id: string, createdAt: string): Item | null {
   const link = linkFromShare(shared)
   if (!link) return null

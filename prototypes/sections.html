@@ -1,0 +1,232 @@
+<title>Stash Sections Prototypes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+/* Layout: 4 questions stacked; each shows option A and B as phone frames side by side (stacked on phones). Glow tokens from app/src/index.css. */
+:root{--page:#0a0913;--bg:#0f0d1a;--surface:#1a1729;--chip:#242036;--ink:#f1eefb;--muted:#a49fbd;--line:#2b2740;--accent:#b4a6ff;--on-accent:#120f20;
+ --warn-bg:#3d2c10;--warn-fg:#ffd28a;--error:#ff8a80;--done:#5ee39a;--video:#e5484d;--course:#0b84e5;--cert:#8e4ec6;--book:#d9822b;--project:#12a594;
+ --glow1:#6d4cff55;--glow2:#e5484d33;--glow3:#12a59433;--display:"Sora",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif;color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--page:#e9e6f4;--bg:#f4f2fb;--surface:#fff;--chip:#ece9f8;--ink:#17132a;--muted:#5f5a78;--line:#e4e0f2;--accent:#5b3fe0;--on-accent:#fff;
+ --warn-bg:#fff2dc;--warn-fg:#8a4b00;--error:#b42318;--done:#15803d;--glow1:#6d4cff40;--glow2:#e5484d26;--glow3:#12a59426;color-scheme:light}}
+:root[data-theme="light"]{--page:#e9e6f4;--bg:#f4f2fb;--surface:#fff;--chip:#ece9f8;--ink:#17132a;--muted:#5f5a78;--line:#e4e0f2;--accent:#5b3fe0;--on-accent:#fff;
+ --warn-bg:#fff2dc;--warn-fg:#8a4b00;--error:#b42318;--done:#15803d;--glow1:#6d4cff40;--glow2:#e5484d26;--glow3:#12a59426;color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.intro{max-width:820px;margin:0 auto 8px}.intro h1{font-family:var(--display);font-size:22px;margin:0 0 6px}.intro p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}
+.q{max-width:820px;margin:28px auto 0}
+.q h2{font-family:var(--display);font-size:17px;margin:0 0 4px}.q>p{margin:0 0 12px;color:var(--muted);font-size:13.5px;line-height:1.5}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.opt{display:grid;gap:8px;min-width:0}.opt>b{font-size:14px}.opt>span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.phone{position:relative;isolation:isolate;overflow:hidden;height:640px;border-radius:28px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column}
+.phone::before{content:"";position:absolute;inset:-60px -30% auto;height:360px;z-index:-1;pointer-events:none;background:radial-gradient(40% 50% at 25% 40%,var(--glow1),transparent 70%),radial-gradient(35% 45% at 80% 30%,var(--glow2),transparent 70%)}
+.scr{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}.scr>*{flex-shrink:0}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.topbar{display:flex;align-items:center;gap:10px}.topbar h3{font-family:var(--display);font-size:18px;margin:0;flex:1}
+.iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.cover{position:relative;overflow:hidden;display:grid;place-items:center;color:#fff;border-radius:12px;background:linear-gradient(145deg,color-mix(in srgb,var(--c) 75%,#fff),var(--c) 55%,color-mix(in srgb,var(--c) 70%,#000))}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{display:grid;gap:10px;justify-items:start;border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:14px;text-align:left}
+.tile .cover{width:44px;height:44px}.tile b{font-size:15px}.tile small{color:var(--muted);font-size:12px;line-height:1.35}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600;white-space:nowrap;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--c);color:var(--ink);background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+.chip .i{width:16px;height:16px;color:var(--c)}
+.field{display:grid;gap:6px}.field label,.lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+.field input,.field textarea{width:100%;font-size:15px;border:1px solid var(--line);background:var(--chip);border-radius:12px;padding:11px 12px;min-width:0}
+.field textarea{min-height:64px;resize:vertical}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--chip);border-radius:12px;padding:4px}
+.seg button{border:0;background:none;border-radius:9px;padding:8px 4px;font-weight:600;font-size:13px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px rgb(0 0 0/.15)}
+.drop{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--line);border-radius:14px;padding:12px;color:var(--muted);font-size:13px;background:none;width:100%;text-align:left}
+.drop .ph{width:54px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--cert),#3b1f63);display:grid;place-items:center;color:#fff;font-size:10px;font-weight:700}
+.primary{border:0;border-radius:14px;padding:14px;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px}
+.primary.draft{background:var(--chip);color:var(--ink);border:1px solid var(--line)}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
+.hint{font-size:12px;color:var(--muted);margin:0;line-height:1.45}
+.badge{background:var(--warn-bg);color:var(--warn-fg);border-radius:999px;padding:3px 8px;font-size:11px;font-weight:600;white-space:nowrap}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;background:var(--surface);border-top:1px solid var(--line);border-radius:24px 24px 0 0;padding:10px 16px 18px;display:grid;gap:12px;z-index:3;box-shadow:0 -10px 30px rgb(0 0 0/.3)}
+.dim{position:absolute;inset:0;background:rgb(5 3 15/.55);z-index:2}
+.grab{width:38px;height:5px;border-radius:9px;background:var(--line);justify-self:center}
+.head{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center}.head .cover{width:52px;height:52px}.head strong{font-size:16px;line-height:1.3}
+.status{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--chip);border-radius:12px;padding:4px}
+.status button{border:0;background:none;border-radius:9px;padding:9px 4px;font-weight:600;font-size:13px;color:var(--muted)}
+.status button[aria-pressed="true"]{background:var(--bg);color:var(--ink)}
+.proof{display:grid;gap:10px;border:1px solid color-mix(in srgb,var(--done) 40%,var(--line));background:color-mix(in srgb,var(--done) 8%,transparent);border-radius:16px;padding:12px}
+.proof h4{margin:0;font-size:14px;display:flex;align-items:center;gap:6px}.proof h4 .i{color:var(--done)}
+.steps{display:grid;gap:2px}
+.step{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.box{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);background:none;display:grid;place-items:center;padding:0}
+.box[aria-checked="true"]{background:var(--project);border-color:var(--project);color:#fff}
+.box .i{width:15px;height:15px;stroke-width:2.6}
+.step span{font-size:14px;line-height:1.35}.step[data-done="true"] span{color:var(--muted);text-decoration:line-through}
+.x{border:0;background:none;color:var(--muted);padding:4px;display:grid}
+.addstep{display:flex;gap:6px}.addstep input{flex:1;min-width:0;font-size:14px;border:1px solid var(--line);background:var(--chip);border-radius:10px;padding:9px 10px}
+.addstep button{border:0;border-radius:10px;padding:0 12px;background:var(--project);color:#fff;font-weight:700}
+.prog{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:600}
+.bar{height:6px;border-radius:9px;background:var(--chip);overflow:hidden}.bar i{display:block;height:100%;background:var(--project);transform-origin:left;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.arrows{display:flex;gap:2px}.arrows button{border:1px solid var(--line);background:var(--chip);border-radius:8px;width:28px;height:28px;display:grid;place-items:center;padding:0}.arrows .i{width:14px;height:14px}
+.banner{display:grid;gap:8px;background:var(--warn-bg);color:var(--warn-fg);border-radius:14px;padding:12px;font-size:13px;line-height:1.4}
+.toast{position:absolute;left:14px;right:14px;bottom:14px;background:var(--ink);color:var(--bg);border-radius:12px;padding:11px 13px;font-size:13px;z-index:5}
+.row{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}.row .cover{width:52px;height:52px}
+.row strong{font-size:14.5px;display:block}.meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:2px;flex-wrap:wrap}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--c)}
+.panelList{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:2px 12px}
+.reveal{animation:rise .45s cubic-bezier(.16,1,.3,1) both}@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.stampIn{animation:stamp .5s cubic-bezier(.16,1,.3,1) both}@keyframes stamp{from{opacity:0;transform:scale(1.6) rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="intro">
+  <h1>Stash: four questions for the sections step</h1>
+  <p>Each question shows option A and option B as a small phone. They're clickable: switch sections, type, tick steps, upload, change status. Example content only.</p>
+</div>
+
+<section class="q" aria-labelledby="q1"><h2 id="q1">1 · How you add something</h2>
+<p>The + button opens a full page, as it does for videos today. Both options show the Save button turning into "Save as Draft" while required fields are missing, so you're never blocked.</p>
+<div class="pair">
+ <div class="opt"><b>A · Pick a section, then its form</b><span>Five big tiles first; tap one to get that section's own form.</span><div class="phone" id="q1a"></div></div>
+ <div class="opt"><b>B · One form, section chips on top</b><span>Lands straight on the form. Tap a chip and the fields change in place.</span><div class="phone" id="q1b"></div></div>
+</div></section>
+
+<section class="q" aria-labelledby="q2"><h2 id="q2">2 · Certificates: when you earn one</h2>
+<p>Tap the certificate, then set its status to Done.</p>
+<div class="pair">
+ <div class="opt"><b>A · "You earned it" step</b><span>Setting Done opens a short celebration that asks for the proof file and credential link. You can skip and add them later.</span><div class="phone" id="q2a"></div></div>
+ <div class="opt"><b>B · Proof always in the sheet</b><span>The detail sheet always has a Proof section. Nothing pops up; fill it in whenever you like.</span><div class="phone" id="q2b"></div></div>
+</div></section>
+
+<section class="q" aria-labelledby="q3"><h2 id="q3">3 · Projects: editing the goal checklist</h2>
+<p>Tick steps and add new ones. Size and difficulty sit above the checklist.</p>
+<div class="pair">
+ <div class="opt"><b>A · Everything inline</b><span>Tick a box to finish a step, × to remove, type at the bottom to add. No reordering.</span><div class="phone" id="q3a"></div></div>
+ <div class="opt"><b>B · Tick mode + Edit mode</b><span>The list is for ticking. "Edit steps" switches to rename, reorder (↑ ↓) and remove.</span><div class="phone" id="q3b"></div></div>
+</div></section>
+
+<section class="q" aria-labelledby="q4"><h2 id="q4">4 · Moving a shared link to the right section</h2>
+<p>A link shared from Chrome lands in Courses as a Draft. How do you say "this is actually a book"?</p>
+<div class="pair">
+ <div class="opt"><b>A · Section chips in every detail sheet</b><span>Every item's sheet starts with the section chips, so any item can be moved at any time.</span><div class="phone" id="q4a"></div></div>
+ <div class="opt"><b>B · A banner on drafts only</b><span>Only drafts show "Saved as a Course. Is it something else?" Once fixed, the banner goes away.</span><div class="phone" id="q4b"></div></div>
+</div></section>
+
+<script>
+const P={video:'<rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="M10.5 9.2l4.6 2.8-4.6 2.8z" fill="currentColor"/>',course:'<path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.5v4.3c3.2 2.3 7.8 2.3 11 0v-4.3"/>',
+cert:'<circle cx="12" cy="9" r="5.5"/><path d="M8.8 13.6L7.5 21l4.5-2.6 4.5 2.6-1.3-7.4"/>',book:'<path d="M5 4.5A1.5 1.5 0 016.5 3H19v15H6.5A1.5 1.5 0 005 19.5z"/><path d="M5 19.5A1.5 1.5 0 006.5 21H19"/>',
+project:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 16.5l9 5 9-5"/>',check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',back:'<path d="M14.5 6l-6 6 6 6"/>',
+x:'<path d="M6 6l12 12M18 6L6 18"/>',up:'<path d="M6 15l6-6 6 6"/>',down:'<path d="M6 9l6 6 6-6"/>',img:'<rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/>',
+file:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',link:'<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>'};
+const svg=(k)=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[k]}</svg>`;
+const cov=(s,cls="")=>`<span class="cover ${cls}" style="--c:var(--${s})">${svg(s)}</span>`;
+const NAME={video:"Video",course:"Course",cert:"Certificate",book:"Book",project:"Project"};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toast=(ph,m)=>{ph.querySelector(".toast")?.remove();const t=document.createElement("div");t.className="toast";t.textContent=m;ph.append(t);setTimeout(()=>t.remove(),2200)};
+
+/* ---------- Q1: section forms ---------- */
+const BLURB={video:"Paste a YouTube link",course:"Link, name, what it teaches",cert:"Screenshot, provider, price",book:"Name and author",project:"Goal, steps, size"};
+function fields(s,st){
+  const f=(id,l,ph,v="")=>`<div class="field"><label for="${id}">${l}</label><input id="${id}" placeholder="${ph}" value="${esc(v)}" data-k="${id.split('-').pop()}"></div>`;
+  const tags=f(st.p+"-tags","Topic tags (comma between)","react, javascript",st.tags||"");
+  const name={course:"Course name",cert:"Certificate name",book:"Book name",project:"Project name"}[s];
+  if(s==="video")return `<p class="hint">Videos keep their own page: paste a link and the title and thumbnail fill in by themselves.</p>`;
+  let h=f(st.p+"-title",name,{course:"The Odin Project",cert:"Google Data Analytics",book:"Atomic Habits",project:"Budget tracker app"}[s],st.title||"");
+  if(s==="course")h+=f(st.p+"-url","Link","https://…")+`<div class="field"><label for="${st.p}-desc">What it teaches (optional)</label><textarea id="${st.p}-desc" placeholder="Full-stack JavaScript, free"></textarea></div>`+tags;
+  if(s==="cert")h+=f(st.p+"-prov","Provider","Coursera")+f(st.p+"-url","Sign-up link","https://…")+
+    `<div class="field"><span class="lbl">Cost</span><div class="seg" data-seg="paid"><button aria-pressed="${!st.paid}">Free</button><button aria-pressed="${!!st.paid}">Paid</button></div></div>`+
+    (st.paid?f(st.p+"-price","Price","$49 a month"):"")+
+    `<div class="field"><span class="lbl">Screenshot (optional)</span><button class="drop" data-act="shot">${st.shot?'<span class="ph">IMG</span>screenshot.jpg, 180 KB after shrinking':svg("img")+"Add a screenshot (from a video or the site)"}</button></div>`+tags;
+  if(s==="book")h+=f(st.p+"-author","Author (optional)","James Clear")+tags;
+  if(s==="project")h+=`<div class="field"><label for="${st.p}-goal">Goal (optional)</label><textarea id="${st.p}-goal" placeholder="Track my monthly spending with charts"></textarea></div>
+    <div class="field"><span class="lbl">Size</span><div class="seg"><button aria-pressed="false">S · weekend</button><button aria-pressed="true">M · 1–2 wk</button><button aria-pressed="false">L · month</button><button aria-pressed="false">XL</button></div></div>
+    <div class="field"><span class="lbl">Difficulty</span><div class="seg"><button aria-pressed="false">Beginner</button><button aria-pressed="true">Mid</button><button aria-pressed="false">Advanced</button></div></div>
+    <p class="hint">Goal checklist steps are added on the project's sheet (question 3). With no steps yet, it saves as a Draft.</p>`+tags;
+  return h}
+function ready(s,st){return s==="project"?false:!!(st.title&&st.title.trim())}
+function saveBtn(s,st){const ok=ready(s,st);return `<button class="primary ${ok?"":"draft"}" data-act="save">${svg(ok?"check":"edit")}${ok?"Save to To do":"Save as Draft"}</button>${ok?"":`<p class="hint" style="text-align:center">Missing ${s==="project"?"checklist steps":"a name"}: it saves anyway with "Needs details".</p>`}`}
+function q1(id,mode){
+  const ph=document.getElementById(id),st={p:id,s:mode==="b"?"course":null};
+  function draw(anim){
+    let h=`<div class="scr">`;
+    if(mode==="a"&&!st.s){h+=`<div class="topbar"><span class="iconbtn">${svg("back")}</span><h3>Add to Stash</h3></div><p class="hint">What are you saving?</p><div class="tiles">`+
+      Object.keys(NAME).map(k=>`<button class="tile" data-s="${k}">${cov(k)}<b>${NAME[k]}</b><small>${BLURB[k]}</small></button>`).join("")+`</div>`}
+    else{h+=`<div class="topbar"><button class="iconbtn" data-act="back" aria-label="Back">${svg("back")}</button><h3>${mode==="a"?"New "+NAME[st.s].toLowerCase():"Add to Stash"}</h3></div>`;
+      if(mode==="b")h+=`<div class="chips" role="group" aria-label="Section">`+Object.keys(NAME).map(k=>`<button class="chip" data-s="${k}" aria-pressed="${st.s===k}" style="--c:var(--${k})">${svg(k)}${NAME[k]}</button>`).join("")+`</div>`;
+      h+=`<div class="${anim?"reveal":""}" style="display:grid;gap:12px">${fields(st.s,st)}</div>`+(st.s==="video"?`<button class="primary">Open the video page</button>`:saveBtn(st.s,st))}
+    ph.innerHTML=h+`</div>`}
+  ph.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.s){st.s=b.dataset.s;st.title="";st.paid=false;st.shot=false;draw(true)}
+    else if(b.dataset.act==="back"){if(mode==="a"){st.s=null;draw()}}
+    else if(b.closest('[data-seg="paid"]')){st.paid=b.textContent==="Paid";draw()}
+    else if(b.dataset.act==="shot"){st.shot=true;draw()}
+    else if(b.dataset.act==="save"){toast(ph,ready(st.s,st)?`Saved to To do: ${st.title}`:"Saved as a Draft. Add the details when you have a minute.")}
+    else if(b.parentElement.classList.contains("seg")){[...b.parentElement.children].forEach(x=>x.setAttribute("aria-pressed",x===b))}});
+  ph.addEventListener("input",e=>{const k=e.target.dataset.k;if(!k)return;st[k]=e.target.value;if(k==="title"){const box=ph.querySelector('[data-act="save"]');box.outerHTML;const wrap=document.createElement("div");wrap.innerHTML=saveBtn(st.s,st);
+    const old=ph.querySelector('[data-act="save"]');const next=old.nextElementSibling?.classList.contains("hint")?old.nextElementSibling:null;old.replaceWith(...wrap.childNodes);next?.remove()}});
+  draw()}
+q1("q1a","a");q1("q1b","b");
+
+/* ---------- Q2: certificate earned ---------- */
+function q2(id,mode){
+  const ph=document.getElementById(id),st={status:"doing",proof:false,cred:"",popup:false};
+  function draw(){
+    let h=`<div class="scr"><div class="panelList"><div class="row">${cov("cert")}<span><strong>Google Data Analytics</strong><span class="meta"><span class="dot" style="--c:var(--cert)"></span>Certificate, Coursera, paid</span></span><span></span></div></div><p class="hint">The sheet below is what opens when you tap it.</p></div>
+    <div class="dim"></div><div class="sheet"><span class="grab"></span><div class="head">${cov("cert")}<strong>Google Data Analytics<br><span class="meta">Coursera · $49 a month</span></strong></div>
+    <div class="field"><span class="lbl">Status</span><div class="status">${["todo","doing","done"].map(s=>`<button data-st="${s}" aria-pressed="${st.status===s}">${{todo:"To do",doing:"Doing",done:"Done"}[s]}</button>`).join("")}</div></div>`;
+    if(mode==="b"||(st.status==="done"&&!st.popup))h+=proofBox();
+    h+=`<button class="ghost">${svg("link")}Open sign-up link</button></div>`;
+    if(mode==="a"&&st.popup)h+=`<div class="sheet stampIn" style="z-index:4"><span class="grab"></span><p style="font-family:var(--display);font-size:22px;margin:4px 0 0;color:var(--done)">You earned it!</p><p class="hint">Add your proof now so it's ready for your CV. You can skip and add it later.</p>${proofFields()}<button class="primary" data-act="keep">${svg("check")}Save proof</button><button class="ghost" data-act="skip">Skip for now</button></div>`;
+    ph.innerHTML=h}
+  const proofFields=()=>`<button class="drop" data-act="proof">${st.proof?`<span class="ph" style="background:linear-gradient(135deg,var(--done),#0b5d3a)">PDF</span>certificate.pdf, 240 KB`:svg("file")+"Add the certificate (PDF or image)"}</button><div class="field"><label for="${id}-cred">Credential link (optional)</label><input id="${id}-cred" placeholder="https://coursera.org/verify/…" value="${esc(st.cred)}"></div>`;
+  const proofBox=()=>`<div class="proof"><h4>${svg("cert")}Proof${st.status==="done"?"":" <span class='hint'>(for when you finish)</span>"}</h4>${proofFields()}</div>`;
+  ph.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.st){const was=st.status;st.status=b.dataset.st;st.popup=mode==="a"&&st.status==="done"&&was!=="done"&&!st.proof;draw();if(st.status==="done"&&mode==="b")toast(ph,"Moved to Done: Google Data Analytics")}
+    else if(b.dataset.act==="proof"){st.proof=true;draw()}else if(b.dataset.act==="keep"||b.dataset.act==="skip"){st.popup=false;draw();toast(ph,b.dataset.act==="keep"?"Proof saved.":"Skipped. Add the proof from the sheet any time.")}});
+  ph.addEventListener("input",e=>{if(e.target.id===id+"-cred")st.cred=e.target.value});
+  draw()}
+q2("q2a","a");q2("q2b","b");
+
+/* ---------- Q3: project checklist ---------- */
+function q3(id,mode){
+  const ph=document.getElementById(id),st={edit:false,steps:[["Sketch the screens",true],["Set up React + Vite",true],["Add income and expenses",true],["Monthly chart",false],["Save to the phone",false]]};
+  function draw(){const d=st.steps.filter(s=>s[1]).length,n=st.steps.length;
+    let h=`<div class="scr"><p class="hint">Project sheet</p></div><div class="dim"></div><div class="sheet"><span class="grab"></span><div class="head">${cov("project")}<strong>Budget tracker app<br><span class="meta">M · 1–2 weeks · Mid</span></strong></div>
+    <div class="prog"><span>Goal checklist</span><span>${d}/${n} done</span></div><div class="bar"><i style="transform:scaleX(${n?d/n:0})"></i></div>`;
+    if(mode==="b")h+=`<div style="display:flex;justify-content:flex-end"><button class="ghost" data-act="mode" style="padding:6px 10px;font-size:13px">${svg(st.edit?"check":"edit")}${st.edit?"Done editing":"Edit steps"}</button></div>`;
+    h+=`<div class="steps">`+st.steps.map((s,k)=>{
+      if(mode==="b"&&st.edit)return `<div class="step"><span class="arrows"><button data-up="${k}" aria-label="Move up">${svg("up")}</button></span><input value="${esc(s[0])}" data-ren="${k}" aria-label="Step ${k+1}" style="font-size:14px;border:1px solid var(--line);background:var(--chip);border-radius:8px;padding:6px 8px;min-width:0"><span class="arrows"><button data-down="${k}" aria-label="Move down">${svg("down")}</button><button data-rm="${k}" aria-label="Remove step">${svg("x")}</button></span></div>`;
+      return `<div class="step" data-done="${s[1]}"><button class="box" role="checkbox" aria-checked="${s[1]}" data-tick="${k}" aria-label="${esc(s[0])}">${s[1]?svg("check"):""}</button><span>${esc(s[0])}</span>${mode==="a"?`<button class="x" data-rm="${k}" aria-label="Remove ${esc(s[0])}">${svg("x")}</button>`:"<span></span>"}</div>`}).join("")+`</div>`;
+    if(mode==="a"||st.edit)h+=`<form class="addstep" data-add><input placeholder="Add a step" aria-label="New step"><button>Add</button></form>`;
+    ph.innerHTML=h+`</div>`}
+  ph.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=+(b.dataset.tick??b.dataset.rm??b.dataset.up??b.dataset.down);
+    if(b.dataset.tick){st.steps[k][1]=!st.steps[k][1];draw();if(st.steps.every(s=>s[1]))toast(ph,"All steps done! Mark the project Done?")}
+    else if(b.dataset.rm){st.steps.splice(k,1);draw()}
+    else if(b.dataset.up&&k>0){[st.steps[k-1],st.steps[k]]=[st.steps[k],st.steps[k-1]];draw()}
+    else if(b.dataset.down&&k<st.steps.length-1){[st.steps[k+1],st.steps[k]]=[st.steps[k],st.steps[k+1]];draw()}
+    else if(b.dataset.act==="mode"){st.edit=!st.edit;draw()}});
+  ph.addEventListener("submit",e=>{e.preventDefault();const v=e.target.querySelector("input").value.trim();if(v){st.steps.push([v,false]);draw();ph.querySelector(".addstep input")?.focus()}});
+  ph.addEventListener("input",e=>{if(e.target.dataset.ren)st.steps[+e.target.dataset.ren][0]=e.target.value});
+  draw()}
+q3("q3a","a");q3("q3b","b");
+
+/* ---------- Q4: move a shared draft ---------- */
+function q4(id,mode){
+  const ph=document.getElementById(id),st={s:"course",fixed:false};
+  function draw(){
+    let h=`<div class="scr"><div class="panelList"><div class="row">${cov(st.s)}<span><strong>Atomic Habits: An Easy & Proven Way…</strong><span class="meta"><span class="dot" style="--c:var(--${st.s})"></span>${NAME[st.s]}, amazon.com</span></span>${st.fixed?"":'<span class="badge">Needs details</span>'}</div></div></div>
+    <div class="dim"></div><div class="sheet"><span class="grab"></span>`;
+    const chips=`<div class="chips" role="group" aria-label="Section">`+["course","cert","book","project"].map(k=>`<button class="chip" data-s="${k}" aria-pressed="${st.s===k}" style="--c:var(--${k})">${svg(k)}${NAME[k]}</button>`).join("")+`</div>`;
+    if(mode==="a")h+=`<div class="field"><span class="lbl">Section</span>${chips}</div>`;
+    else if(!st.fixed)h+=`<div class="banner"><span>Saved as a <b>${NAME[st.s]}</b> from Chrome. Is it something else?</span>${chips.replaceAll("var(--surface)","transparent")}<button class="ghost" data-act="ok" style="padding:7px;font-size:13px">Yes, it's a ${NAME[st.s]}</button></div>`;
+    h+=`<div class="field"><label for="${id}-t">${NAME[st.s]} name</label><input id="${id}-t" value="Atomic Habits"></div>`;
+    if(st.s==="book")h+=`<div class="field reveal"><label for="${id}-a">Author (optional)</label><input id="${id}-a" placeholder="James Clear"></div>`;
+    if(st.s==="cert")h+=`<div class="field reveal"><label for="${id}-p">Provider</label><input id="${id}-p" placeholder="Coursera"></div>`;
+    if(st.s==="project")h+=`<p class="hint reveal">Add goal steps below to finish it.</p>`;
+    if(st.s==="course")h+=`<div class="field reveal"><label for="${id}-d">What it teaches (optional)</label><input id="${id}-d"></div>`;
+    ph.innerHTML=h+`<p class="hint">Fields change to match the section. Nothing you typed is lost.</p></div>`}
+  ph.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.s){st.s=b.dataset.s;if(mode==="b")st.fixed=true;draw();toast(ph,`Moved to ${NAME[st.s]}s`)}
+    else if(b.dataset.act==="ok"){st.fixed=true;draw()}});
+  draw()}
+q4("q4a","a");q4("q4b","b");
+</script>

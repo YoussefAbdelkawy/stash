@@ -2,15 +2,19 @@ import type { Item } from './items'
 
 const SECTIONS = ['video', 'course', 'cert', 'book', 'project']
 const STATUSES = ['todo', 'doing', 'done']
+const FILE_TYPES = /^data:(image\/[a-z+.-]+|application\/pdf);base64,/
 
-// shortcut: items only, no images yet; add images (as base64) when step 4 brings screenshots.
-export function makeBackup(items: Item[]): string {
-  return JSON.stringify({ app: 'stash', version: 1, exportedAt: new Date().toISOString(), items })
+// files: screenshots and proofs as data URLs, keyed "<item id>/image" or "<item id>/proof" (see files.ts).
+export type Backup = { items: Item[]; files: Record<string, string> }
+
+export function makeBackup(items: Item[], files: Record<string, string> = {}): string {
+  return JSON.stringify({ app: 'stash', version: 2, exportedAt: new Date().toISOString(), items, files })
 }
 
-// The file comes from outside the app, so check every item before trusting it.
-export function parseBackup(text: string): Item[] {
-  let data: { app?: string; items?: unknown }
+// The file comes from outside the app, so check every item and file before trusting it.
+// Version 1 backups (before step 4) have no files and still restore.
+export function parseBackup(text: string): Backup {
+  let data: { app?: string; items?: unknown; files?: unknown }
   try {
     data = JSON.parse(text)
   } catch {
@@ -25,5 +29,15 @@ export function parseBackup(text: string): Item[] {
       throw new Error(`The backup is damaged at item ${n + 1}. Nothing was restored.`)
     }
   })
-  return data.items as Item[]
+  const items = data.items as Item[]
+  const ids = new Set(items.map((i) => i.id))
+  const files = (data.files ?? {}) as Record<string, unknown>
+  if (typeof files !== 'object' || Array.isArray(files)) throw new Error('The backup is damaged (its files list). Nothing was restored.')
+  for (const [key, value] of Object.entries(files)) {
+    const [id, kind] = key.split('/')
+    if (!ids.has(id) || !['image', 'proof'].includes(kind) || typeof value !== 'string' || !FILE_TYPES.test(value)) {
+      throw new Error('The backup is damaged (one of its images or proofs). Nothing was restored.')
+    }
+  }
+  return { items, files: files as Record<string, string> }
 }

@@ -9,6 +9,9 @@ export async function loadItems(): Promise<Item[]> {
   return all.filter((i) => !i.archived_at).sort((a, b) => b.created_at.localeCompare(a.created_at))
 }
 
+// Everything, archived items included: backups must keep them too.
+export const loadAllItems = () => values<Item>(items)
+
 export const saveItem = (item: Item) => set(item.id, item, items)
 
 // Restore adds or overwrites by id; it never removes items you already have.

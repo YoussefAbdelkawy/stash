@@ -1,5 +1,7 @@
 # Stash · 3 of 6 · Courses, Certificates, Books, Projects
 
+> **DONE 2026-11-26.** Built and tested (see HANDOFF.md §5e). Only the owner's phone test is left; see HANDOFF §7.
+
 > **Paste this whole file into a new Claude Code chat** with the repo https://github.com/YoussefAbdelkawy/stash attached.
 >
 > **To Claude:** first read `HANDOFF.md` and `STANDARDS.md` in the repo root, and follow every rule in them. The key ones:

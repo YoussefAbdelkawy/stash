@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { askToKeepData, loadItems, saveItem, saveItems } from './store'
+import { askToKeepData, loadAllItems, loadItems, saveItem, saveItems } from './store'
 import { makeBackup, parseBackup } from './backup'
 import {
-  checklistProgress, displayTitle, needsDetails, pickNow, randomTodo,
+  checklistProgress, displayTitle, missingDetails, needsDetails, pickNow, randomTodo, subtitle,
   SECTION_ONE, STATUS_LABEL, type Item, type Status,
 } from './items'
 import {
@@ -11,14 +11,20 @@ import {
 } from './motion'
 import { Cover, Icon } from './Icon'
 import { Panel } from './Panel'
-import { AddVideo } from './AddVideo'
+import { AddItem } from './AddItem'
 import { Details } from './Details'
 import { itemFromShare, readShare, type Shared } from './share'
 import { fetchTitle, youTubeId } from './youtube'
+import { allFiles, blobToDataUrl, dataUrlToBlob, fileKey, saveFile, saveFiles, type FileKind } from './files'
 import './App.css'
 
-const MAX_BACKUP_BYTES = 20 * 1024 * 1024
+// shortcut: the whole backup file is read into memory at once; fine for one person's list, stream it if backups pass ~100 MB.
+const MAX_BACKUP_BYTES = 100 * 1024 * 1024
 const TABS: Status[] = ['doing', 'todo', 'done']
+// The certificate screenshot, if one is saved, for <Cover>.
+const coverImage = (i: Item) => (i.image_at ? { key: fileKey(i.id, 'image'), at: i.image_at } : null)
+// After any edit, an item stays a Draft only while required fields are missing.
+const withDraft = (i: Item): Item => ({ ...i, is_draft: missingDetails(i).length > 0 })
 
 export default function App() {
   const [items, setItems] = useState<Item[] | null>(null)
@@ -72,13 +78,10 @@ export default function App() {
     }
   }
 
-  async function update(next: Item) {
-    if (!(await store(next))) return false
-    setItems((list) => list!.map((i) => (i.id === next.id ? next : i)))
-    return true
-  }
-
-  async function add(item: Item) {
+  async function add(item: Item, image?: Blob | null) {
+    if (image) {
+      try { await saveFile(fileKey(item.id, 'image'), image) } catch { item = { ...item, image_at: null } } // still save the item
+    }
     if (!(await store(item))) return false
     flushSync(() => { setTab('todo'); setItems((list) => [item, ...list!]) })
     riseIn($(`[data-id="${item.id}"]`))
@@ -110,9 +113,22 @@ export default function App() {
     setToast(`Archived: ${displayTitle(item)}`)
   }
 
-  const rename = (item: Item, typed: string) => {
-    const title = typed.trim() || null
-    update({ ...item, title, is_draft: !title })
+  // Typing in the detail sheet: merge into the newest copy of the item (so quick edits never undo each other), then save.
+  function edit(id: string, patch: Partial<Item>) {
+    let next: Item | undefined
+    flushSync(() => setItems((list) => list!.map((i) => (i.id === id ? (next = withDraft({ ...i, ...patch })) : i))))
+    if (next) store(next)
+  }
+
+  async function attach(item: Item, kind: FileKind, file: Blob, name: string) {
+    try {
+      await saveFile(fileKey(item.id, kind), file)
+    } catch {
+      return setToast("Couldn't save that file. Your phone may be out of space. Try again.")
+    }
+    const at = new Date().toISOString()
+    edit(item.id, kind === 'image' ? { image_at: at } : { proof_name: name.slice(0, 120), proof_at: at })
+    setToast(kind === 'image' ? 'Screenshot saved.' : 'Proof saved.')
   }
 
   const moveTo = (item: Item, status: Status) => once(async () => {
@@ -148,8 +164,16 @@ export default function App() {
     slideTabs(direction, () => flushSync(() => setTab(next)))
   }
 
-  function downloadBackup() {
-    const blob = new Blob([makeBackup(items ?? [])], { type: 'application/json' })
+  async function downloadBackup() {
+    let text: string
+    try {
+      const files: Record<string, string> = {}
+      for (const [key, blob] of await allFiles()) files[key] = await blobToDataUrl(blob)
+      text = makeBackup(await loadAllItems(), files) // archived items too, so a restore never loses them
+    } catch {
+      return setToast("Couldn't make the backup. Close and reopen Stash, then try again.")
+    }
+    const blob = new Blob([text], { type: 'application/json' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
     link.download = `stash-backup-${new Date().toISOString().slice(0, 10)}.json`
@@ -162,7 +186,9 @@ export default function App() {
     if (!file) return
     if (file.size > MAX_BACKUP_BYTES) return setToast('That file is too big to be a Stash backup (over 20 MB).')
     try {
-      await saveItems(parseBackup(await file.text()))
+      const backup = parseBackup(await file.text())
+      await saveFiles(await Promise.all(Object.entries(backup.files).map(async ([key, url]) => [key, await dataUrlToBlob(url)] as [string, Blob])))
+      await saveItems(backup.items)
       setItems(await loadItems())
       setToast('Backup restored. Items you already had were kept.')
     } catch (e) {
@@ -199,7 +225,7 @@ export default function App() {
         <section className="now" aria-label="Now">
           <div className="sweep" />
           <button className="now-open" onClick={() => setPanel({ kind: 'item', id: now.id })} aria-label={`${displayTitle(now)}. Open details`}>
-            <Cover section={now.section} url={now.url} />
+            <Cover section={now.section} url={now.url} image={coverImage(now)} />
             <span>
               <span className="kicker"><i />Now, {SECTION_ONE[now.section]}</span>
               <h2>{displayTitle(now)}</h2>
@@ -245,7 +271,7 @@ export default function App() {
             <Cover icon={tab === 'done' ? 'check' : 'all'} />
             <span>
               {list.length === 0
-                ? 'Nothing saved yet. Tap + to add a YouTube video. Have a backup? Tap the restore button at the top.'
+                ? 'Nothing saved yet. Tap + to add a video, course, certificate, book or project. Have a backup? Tap the restore button at the top.'
                 : tab === 'done'
                   ? 'Nothing finished yet. Your wins will collect here.'
                   : `Nothing in ${STATUS_LABEL[tab]}. Open an item in another tab and set its status to ${STATUS_LABEL[tab]}.`}
@@ -255,30 +281,36 @@ export default function App() {
         {rows.map((i) => (
           <button key={i.id} data-id={i.id} className="row" onClick={() => setPanel({ kind: 'item', id: i.id })}
             aria-label={`${displayTitle(i)}, ${STATUS_LABEL[i.status]}${needsDetails(i) ? ', needs details' : ''}. Open details`}>
-            <Cover section={i.section} url={i.url} />
+            <Cover section={i.section} url={i.url} image={coverImage(i)} />
             <span>
               <strong>{displayTitle(i)}</strong>
-              <span className="meta"><span className="dot" style={{ '--c': `var(--${i.section})` } as React.CSSProperties} />{SECTION_ONE[i.section]}</span>
+              <span className="meta"><span className="dot" style={{ '--c': `var(--${i.section})` } as React.CSSProperties} />{[SECTION_ONE[i.section], subtitle(i)].filter(Boolean).join(', ')}</span>
             </span>
             {needsDetails(i) ? <span className="badge">Needs details</span> : <Icon name="chevron" className="icon chevron" />}
           </button>
         ))}
       </div>
 
-      <button className="fab" onClick={() => setPanel({ kind: 'add' })} aria-label="Add a video"><Icon name="plus" /></button>
+      <button className="fab" onClick={() => setPanel({ kind: 'add' })} aria-label="Add to Stash"><Icon name="plus" /></button>
 
       {panel?.kind === 'add' && (
-        <Panel kind="page" label="Add a video" onClose={() => setPanel(null)}>
+        <Panel kind="page" label="Add to Stash" onClose={() => setPanel(null)}>
           {(close) => (
-            <AddVideo items={list} close={close} onOpen={(i) => setPanel({ kind: 'item', id: i.id })}
-              onSave={async (item) => { if (await add(item)) close() }} />
+            <AddItem items={list} close={close} onOpen={(i) => setPanel({ kind: 'item', id: i.id })}
+              onSave={async (item, image) => {
+                if (!(await add(item, image))) return
+                await close()
+                if (item.section === 'project') setPanel({ kind: 'item', id: item.id }) // straight to adding its goal steps
+              }} />
           )}
         </Panel>
       )}
       {openItem && (
         <Panel key={openItem.id} kind="sheet" label={displayTitle(openItem)} onClose={() => setPanel(null)}>
           {(close) => (
-            <Details item={openItem} close={close} onRename={(t) => rename(openItem, t)}
+            <Details item={openItem} close={close} onChange={(patch) => edit(openItem.id, patch)}
+              onFile={(kind, file, name) => attach(openItem, kind, file, name)}
+              onAllStepsDone={() => setToast('All steps done! Set the project to Done when you are ready.')}
               onMove={async (s) => { await close(); moveTo(openItem, s) }}
               onArchive={async () => { await close(); archive(openItem) }} />
           )}

@@ -1,5 +1,5 @@
 # HANDOFF — "Stash" (placeholder name): personal learning-backlog app
-Last updated: 2026-11-18. Status: LOCAL-ONLY storage (owner, 2026-11-18). Steps 1, 2 (Videos) and 3 (Share button) built and tested here. Code on GitHub: https://github.com/YoussefAbdelkawy/stash. Waiting on the owner to turn on GitHub Pages and test on the phone. Next: step 4.
+Last updated: 2026-11-26. Status: LOCAL-ONLY storage. Steps 1–4 built and tested here (step 4 = Courses, Certificates, Books, Projects). Live at https://youssefabdelkawy.github.io/stash/. Phone tests of steps 2–4 still pending. Next: step 5 (search, tags, filters).
 
 ## 1. The problem
 The owner keeps finding courses, YouTube videos, books, certificates to aim for, and project ideas. They send them to themselves on WhatsApp, and they get lost in the endless messages and never get done. The goal: one place that stores all of this, makes it easy to find again, and pushes items toward "done". Build it first as a web app, then turn it into an Android app.
@@ -36,8 +36,13 @@ See also STANDARDS.md: the fixed stack, no-hallucination rules, security, and th
 | Same video twice | **"Already saved"** (owner's pick 2026-11-18): the Add page shows which tab it is in plus an "Open it" button, and Save stays off. Matched by YouTube video id, so different link shapes of one video count as the same. Archived videos don't count. |
 | App name | **Stash** (owner's pick 2026-11-18). |
 | App icon | **B · Stack** (owner's pick 2026-11-18 from `prototypes/icons.html`, artifact https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX): three tilted section cards (teal, blue, red) with a white play mark on the dark Glow background. Files: `app/public/icon.svg`, `icon-192.png`, `icon-512.png` (PNGs rendered from the SVG with Playwright). |
-| Shared non-YouTube links | **Saved at once as a Draft** with "Needs details" (owner's pick 2026-11-18). Until step 4 they land in **Courses**, keeping the page title Chrome sends. The same link shared twice → "Already saved" and its sheet opens. |
-| Backup | 'Download backup' button saves one file to the phone (owner can put it in Google Drive); 'Restore' loads it back. No automatic reminder. (Owner's pick 2026-11-18.) |
+| Shared non-YouTube links | **Saved at once as a Draft** with "Needs details" (owner's pick 2026-11-18). They land in **Courses**, keeping the page title Chrome sends; move them with the section chips in the detail sheet (step 4). The same link shared twice → "Already saved" and its sheet opens. |
+| Adding (step 4) | **A · Pick a section first** (owner's pick 2026-11-26 from `prototypes/sections.html`, artifact https://claude.ai/artifact/94LpAg14RULcrquAFAhovT): + opens "Add to Stash" with five section tiles; Video opens the existing video page, the others open that section's own form. Save says "Save to To do", or "Save as Draft" while required fields are missing (never blocked). After saving a project, its sheet opens to add goal steps. |
+| Certificate proof | **B · Proof always in the sheet** (owner's pick 2026-11-26): a Proof box on every certificate's sheet (file: PDF or image, plus credential link), "for when you finish" until Done. No pop-up. |
+| Project checklist | **B · Tick mode + Edit mode** (owner's pick 2026-11-26): tick steps; "Edit steps" switches to rename, reorder (↑ ↓), remove and add. A project with no steps opens in Edit mode so several steps can be added in a row (found in testing). |
+| Changing section | **A · Section chips on every detail sheet** (owner's pick 2026-11-26): any item can move to any section; typed fields are kept. |
+| Required fields | Decided while building (tell the owner; change if wanted): every section needs a name/title; Courses also need a link; Projects need at least one goal step. Everything else is optional. Missing any → Draft with "Needs details". Any edit in the sheet re-checks this. |
+| Backup | 'Download backup' button saves one file to the phone (owner can put it in Google Drive); 'Restore' loads it back. No automatic reminder. (Owner's pick 2026-11-18.) Since step 4 (version 2): includes screenshots and proofs, and archived items too. Version 1 backups still restore. |
 | Home-screen look | **B · Focus** (picked 2026-11-18 from prototypes A Shelf / B Focus in `prototypes/home.html`): big "Now" card for the current Doing item, search box, Doing / To do / Done tabs with compact rows, a Random pick row in To do, sections in a bottom tab bar, a + button to save. |
 
 ### Section details
@@ -54,7 +59,7 @@ Reminders and notifications, WhatsApp import, AI summaries, iPhone support, and 
 1. Local storage on the phone + backup/restore + home screen. DONE (2026-11-18).
 2. Videos section. DONE (2026-11-18).
 3. Share button (installable PWA plus share target). The app becomes usable from here. BUILT (2026-11-18); phone test pending.
-4. Courses (typed in; auto-fill waits for Capacitor), Certificates, Books, Projects.
+4. Courses (typed in; auto-fill waits for Capacitor), Certificates, Books, Projects. DONE (2026-11-26); phone test pending.
 5. Search, tags and filters.
 6. Deploy (GitHub Pages, pulled forward into step 3) and install on the phone.
 7. Later: wrap with Capacitor into an Android app.
@@ -102,6 +107,16 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 - e2e renamed `app/e2e/app.cjs`: 12 checks (7 video + share from YouTube app, Chrome course page, duplicate, no-link share, reload, and the install pieces: service worker ready, manifest share_target, icons load).
 - GitHub's plans page (https://docs.github.com/en/get-started/learning-about-github/githubs-plans): on GitHub Free, "GitHub Pages in public repositories" only, so the repo must be public.
 
+## 5e. What exists (step 4, the other sections)
+- `app/src/items.ts`: optional fields per section (`description`, `tags`, `author`, `provider`, `is_paid`, `price`, `credential_url`, `image_at`, `proof_name`, `proof_at`, `size`, `difficulty`). Optional, so older items and backups work unchanged. Plus `missingDetails` (required fields), `subtitle` (the line under a title, such as "Coursera, $49 a month" or "1/3 done, M"), `parseTags`, and checklist edits (`addStep`, `toggleStep`, `renameStep`, `removeStep`, `moveStep`). All tested.
+- `app/src/files.ts` + test: screenshots and proofs in their own IndexedDB database `stash-files` (idb-keyval opens one store per database), keyed `<item id>/image` and `<item id>/proof`. `checkFile` (images only for screenshots; images or PDF for proofs; 20 MB input, 10 MB PDF), `fitWithin` (1600 px long side) and `shrink` (canvas to WebP, quality 0.82; keeps the original if that's smaller). Nothing ever deletes a file; a new one replaces the old under the same key.
+- **Image shrinking research (rule 4, 2026-11-26).** Compared **browser-image-compression** 2.0.2 (npm registry; repo github.com/Donaldcwl/browser-image-compression; last release March 2023) and **compressorjs** 1.4.0 (npm registry; repo github.com/fengyuanchen/compressorjs; 2 extra dependencies). I read their READMEs in the npm packages. Both use the browser's canvas `toBlob` underneath, so we use the platform directly (`createImageBitmap` + canvas `toBlob`), about 20 lines and no new dependency. Unverified: EXIF rotation of phone photos (`createImageBitmap` is meant to apply it by default; screenshots don't have any).
+- `app/src/backup.ts` + test: version 2 adds `files` (data URLs); checks each file's key belongs to an item and its type is an image or PDF; rejects anything else with a clear message. Max backup 100 MB (shortcut comment in `App.tsx`).
+- `app/src/AddItem.tsx` (tiles + section form), `Fields.tsx` (shared fields, `LinkField` keeps only real http(s) links, `FilePick` checks and shrinks), `Checklist.tsx`, `Details.tsx` (section chips, fields, checklist, Proof, open link, status, archive), `useFileUrl.ts` (shows a saved file). Certificates show their screenshot as the cover.
+- `App.tsx`: `edit()` merges each change into the newest copy of the item, so fast typing never undoes another field. Backups now read everything with `loadAllItems()` (archived too).
+- `app/e2e/app.cjs`: 19 checks. The new ones (13–19): course with link check and tags; book draft; certificate with a 3000×2000 screenshot shrunk to 1600×1067 WebP and a wrong file type refused; proof PDF and credential link; project with steps (add, tick, reorder) and the Now card progress; course moved to Books with its name kept; backup with archived items and both files, restored on a fresh phone; a version 1 backup restored. Run: `cd app && npm run build && NODE_PATH=$(npm root -g) npm run e2e`.
+- Gotcha: in tests, close any open Add page (Escape) before tapping + again. The open dialog blocks the page behind it.
+
 ## 6. Open items
 - - Local-only questions, asked one at a time: (1) backup: DONE, backup file, (2) course auto-fill: DONE, typed in for now, (3) remove Supabase files: DONE, deleted.
 - GitHub Pages is live (2026-11-18): repo public, Pages source = GitHub Actions, first deploy succeeded; https://youssefabdelkawy.github.io/stash/ checked over HTTPS (page, manifest, service worker, icons) and a share saved a real YouTube video with its real title and thumbnail in a phone-size browser. **Still to do: the owner installs it on the Android phone and shares from YouTube and Chrome.**
@@ -109,9 +124,9 @@ Plugins not needed: Figma, MongoDB, extra React plugins.
 - Git: pushed to https://github.com/YoussefAbdelkawy/stash (branch `main`; must be public for GitHub Pages), 2026-11-18. Commit and push after every piece of work.
 
 ## 7. Next action
-1. Owner: install on the phone and share a YouTube video and a Chrome page to Stash. Report back what happened (this is the step 3 manual check).
-2. Then step 4 (Courses, Certificates, Books, Projects): 2+ prototypes first (rule 1), asked one at a time as clickable choices. Include a way to change a shared draft's section (today non-YouTube shares land in Courses). Images in backups come with step 4 (see `src/backup.ts`).
+1. Owner: on the phone, install the app and share a YouTube video and a Chrome page to Stash (`docs/next/02-share-button.md`). Then try each new section: add a course, book, certificate (with a screenshot from the gallery) and project (add steps, tick them), move a shared link to Books, and download a backup. Report back what happened.
+2. Then step 5 (search, tags and filters): `docs/next/04-search-tags-filters.md`.
 
 **Ready-made prompts for new chats** (one per remaining piece, 2026-11-18): `docs/next/01-videos.md` (phone check), `02-share-button.md` (phone check), `03-sections.md` (step 4), `04-search-tags-filters.md` (step 5), `05-online-and-phone.md` (step 6), `06-android-app.md` (step 7). Paste one into a new Claude Code chat with this repo attached.
 
-Prototypes: layout `prototypes/home.html`, motion `prototypes/motion.html`, look `prototypes/look.html`; step 2 `prototypes/videos.html` (https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg), step 3 icon `prototypes/icons.html` (https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX).
+Prototypes: step 4 sections `prototypes/sections.html` (https://claude.ai/artifact/94LpAg14RULcrquAFAhovT); layout `prototypes/home.html`, motion `prototypes/motion.html`, look `prototypes/look.html`; step 2 `prototypes/videos.html` (https://claude.ai/artifact/A7ehh7y4qK57tUaDtR2zYg), step 3 icon `prototypes/icons.html` (https://claude.ai/artifact/KR1Apn8wckg548fkjjMSoX).
